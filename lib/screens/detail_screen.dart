@@ -13,6 +13,7 @@ import '../providers/watchlist_provider.dart';
 import '../widgets/custom_badge.dart';
 import '../widgets/cast_card.dart';
 import '../widgets/movie_card.dart';
+import '../widgets/shimmer_loader.dart';
 import 'player_screen.dart';
 
 class DetailScreen extends StatefulWidget {
