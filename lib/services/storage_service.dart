@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/media_item.dart';
+import '../models/diary_entry.dart';
 
 class ContinueWatchingItem {
   final MediaItem media;
@@ -37,6 +38,7 @@ class StorageService {
   static const String _searchHistoryKey = 'flickora_search_history';
   static const String _apiKeyKey = 'flickora_custom_api_key';
   static const String _qualityKey = 'flickora_stream_quality';
+  static const String _diaryKey = 'flickora_cinema_diary';
 
   late SharedPreferences _prefs;
 
@@ -75,6 +77,30 @@ class StorageService {
   Future<void> saveContinueWatching(List<ContinueWatchingItem> items) async {
     final raw = items.map((item) => jsonEncode(item.toJson())).toList();
     await _prefs.setStringList(_continueWatchingKey, raw);
+  }
+
+  // --- Cinema Diary ---
+  List<DiaryEntry> getDiary() {
+    final raw = _prefs.getStringList(_diaryKey) ?? [];
+    return raw.map((item) => DiaryEntry.fromJson(jsonDecode(item))).toList();
+  }
+
+  Future<void> saveDiary(List<DiaryEntry> entries) async {
+    final raw = entries.map((item) => jsonEncode(item.toJson())).toList();
+    await _prefs.setStringList(_diaryKey, raw);
+  }
+
+  Future<void> addDiaryEntry(DiaryEntry entry) async {
+    final list = getDiary();
+    list.removeWhere((e) => e.media.id == entry.media.id);
+    list.insert(0, entry);
+    await saveDiary(list);
+  }
+
+  Future<void> deleteDiaryEntry(String id) async {
+    final list = getDiary();
+    list.removeWhere((e) => e.id == id);
+    await saveDiary(list);
   }
 
   // --- Search History ---

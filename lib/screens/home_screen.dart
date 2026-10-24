@@ -11,6 +11,8 @@ import '../widgets/section_header.dart';
 import '../widgets/shimmer_loader.dart';
 import 'detail_screen.dart';
 import 'player_screen.dart';
+import 'mood_matcher_screen.dart';
+import 'radar_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -104,6 +106,51 @@ class HomeScreen extends StatelessWidget {
                 ShimmerLoader(width: double.infinity, height: 440, borderRadius: 0)
               else
                 HeroCarousel(items: mediaProvider.heroItems),
+
+              const SizedBox(height: 16),
+
+              // Interactive Discovery Features: Mood Matcher & Release Radar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Mood Matcher',
+                        subtitle: 'What to watch tonight?',
+                        badge: '3-Step Quiz',
+                        icon: Icons.psychology_rounded,
+                        gradientColors: const [Color(0xFFE50914), Color(0xFF8B0000)],
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const MoodMatcherScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Release Radar',
+                        subtitle: 'Box Office & Countdowns',
+                        badge: 'Live Tracker',
+                        icon: Icons.radar_rounded,
+                        gradientColors: const [Color(0xFF1B2238), Color(0xFF101524)],
+                        borderColor: FlickoraTheme.accentRed.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const RadarScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
               const SizedBox(height: 16),
 
@@ -342,6 +389,88 @@ class HomeScreen extends StatelessWidget {
                   ),
                   const Icon(Icons.more_vert, size: 16, color: FlickoraTheme.textMuted),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureActionCard({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required String badge,
+    required IconData icon,
+    required List<Color> gradientColors,
+    Color? borderColor,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: borderColor ?? Colors.white12, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: gradientColors.first.withOpacity(0.25),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(icon, color: Colors.white, size: 22),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    badge,
+                    style: const TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                letterSpacing: 0.2,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 10.5,
+                color: Colors.white.withOpacity(0.8),
               ),
             ),
           ],
