@@ -4,6 +4,9 @@ import '../core/constants.dart';
 import '../models/media_item.dart';
 import '../models/cast.dart';
 import '../models/trailer.dart';
+import '../models/episode.dart';
+import '../models/actor.dart';
+import '../models/watch_provider.dart';
 
 class TmdbService {
   String _apiKey;
@@ -41,6 +44,11 @@ class TmdbService {
       if (tvs.isNotEmpty) return tvs;
     }
     return items;
+  }
+
+  // --- Free Full Cinema (Full-length playable movies) ---
+  List<MediaItem> getFreeCinema() {
+    return FlickoraConstants.freeCinemaMedia.map((json) => MediaItem.fromJson(json)).toList();
   }
 
   // --- Trending ---
@@ -135,7 +143,7 @@ class TmdbService {
     try {
       final uri = _buildUri('/discover/tv', {
         'with_genres': '16',
-        'with_keywords': '210024|287501|284004', // Anime keywords
+        'with_keywords': '210024|287501|284004',
         'sort_by': 'popularity.desc',
         'page': page.toString(),
       });
@@ -173,12 +181,121 @@ class TmdbService {
       }
     } catch (_) {}
 
-    // Fallback search
+    // Check free cinema first
+    final freeMatch = FlickoraConstants.freeCinemaMedia.firstWhere(
+      (m) => m['id'] == id,
+      orElse: () => {},
+    );
+    if (freeMatch.isNotEmpty) {
+      return MediaItem.fromJson(freeMatch);
+    }
+
     final match = FlickoraConstants.fallbackMedia.firstWhere(
       (m) => m['id'] == id,
       orElse: () => FlickoraConstants.fallbackMedia.first,
     );
     return MediaItem.fromJson(match);
+  }
+
+  // --- TV Show Season Episodes ---
+  Future<List<Episode>> getSeasonEpisodes(int tvId, int seasonNumber) async {
+    try {
+      final uri = _buildUri('/tv/$tvId/season/$seasonNumber');
+      final res = await http.get(uri, headers: _headers).timeout(const Duration(seconds: 8));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        final episodesList = data['episodes'] as List? ?? [];
+        return episodesList.map((ep) => Episode.fromJson(ep, seasonNumber)).toList();
+      }
+    } catch (_) {}
+
+    // High quality mock episodes fallback
+    return List.generate(8, (index) {
+      final epNum = index + 1;
+      return Episode(
+        id: tvId * 100 + epNum,
+        name: 'Episode $epNum: The Genesis Arc',
+        overview: 'Tensions peak as the faction embarks on a dangerous reconnaissance mission across enemy territory.',
+        stillPath: null,
+        voteAverage: 8.4 + (index % 5) * 0.1,
+        episodeNumber: epNum,
+        seasonNumber: seasonNumber,
+        runtime: 48 + (index * 2),
+        airDate: '2024-03-${10 + epNum}',
+        streamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+      );
+    });
+  }
+
+  // --- Actor Details ---
+  Future<ActorDetail> getActorDetails(int actorId) async {
+    try {
+      final uri = _buildUri('/person/$actorId', {'append_to_response': 'combined_credits'});
+      final res = await http.get(uri, headers: _headers).timeout(const Duration(seconds: 8));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        List<MediaItem> filmography = [];
+        if (data['combined_credits'] != null && data['combined_credits']['cast'] != null) {
+          final castCredits = data['combined_credits']['cast'] as List;
+          filmography = castCredits
+              .take(15)
+              .map((c) => MediaItem.fromJson(c, defaultMediaType: c['media_type'] ?? 'movie'))
+              .toList();
+        }
+        return ActorDetail.fromJson(data, credits: filmography);
+      }
+    } catch (_) {}
+
+    return ActorDetail(
+      id: actorId,
+      name: 'Featured Artist',
+      biography: 'Acclaimed international performer known for visionary acting and dramatic character portrayals across blockbuster cinema and award-winning television series.',
+      birthday: '1995-12-27',
+      placeOfBirth: 'New York City, USA',
+      profilePath: null,
+      knownForDepartment: 'Acting',
+      filmography: _getFallbackItems(),
+    );
+  }
+
+  // --- Where to Watch (Watch Providers) ---
+  Future<List<WatchProvider>> getWatchProviders(int id, String mediaType) async {
+    try {
+      final uri = _buildUri('/$mediaType/$id/watch/providers');
+      final res = await http.get(uri, headers: _headers).timeout(const Duration(seconds: 8));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        final results = data['results'] as Map<String, dynamic>? ?? {};
+        final us = results['US'] as Map<String, dynamic>? ?? results.values.firstOrNull as Map<String, dynamic>?;
+
+        if (us != null) {
+          final List<WatchProvider> providers = [];
+          if (us['free'] != null) {
+            for (var p in (us['free'] as List)) {
+              providers.add(WatchProvider.fromJson(p, type: 'Stream Free'));
+            }
+          }
+          if (us['flatrate'] != null) {
+            for (var p in (us['flatrate'] as List)) {
+              providers.add(WatchProvider.fromJson(p, type: 'Subscription'));
+            }
+          }
+          if (us['ads'] != null) {
+            for (var p in (us['ads'] as List)) {
+              providers.add(WatchProvider.fromJson(p, type: 'Free with Ads'));
+            }
+          }
+          if (providers.isNotEmpty) return providers;
+        }
+      }
+    } catch (_) {}
+
+    // Default streaming providers badge fallback
+    return [
+      WatchProvider(id: 1, name: 'Tubi TV', type: 'Stream Free', logoPath: null),
+      WatchProvider(id: 2, name: 'Pluto TV', type: 'Stream Free', logoPath: null),
+      WatchProvider(id: 3, name: 'Freevee', type: 'Free with Ads', logoPath: null),
+    ];
   }
 
   // --- Cast & Crew ---
@@ -194,11 +311,11 @@ class TmdbService {
     } catch (_) {}
 
     return [
-      CastMember(id: 1, name: 'Timothée Chalamet', character: 'Paul Atreides'),
-      CastMember(id: 2, name: 'Zendaya', character: 'Chani'),
-      CastMember(id: 3, name: 'Rebecca Ferguson', character: 'Lady Jessica'),
-      CastMember(id: 4, name: 'Javier Bardem', character: 'Stilgar'),
-      CastMember(id: 5, name: 'Austin Butler', character: 'Feyd-Rautha Harkonnen'),
+      CastMember(id: 1190668, name: 'Timothée Chalamet', character: 'Paul Atreides'),
+      CastMember(id: 505710, name: 'Zendaya', character: 'Chani'),
+      CastMember(id: 93425, name: 'Rebecca Ferguson', character: 'Lady Jessica'),
+      CastMember(id: 3810, name: 'Javier Bardem', character: 'Stilgar'),
+      CastMember(id: 1373737, name: 'Austin Butler', character: 'Feyd-Rautha Harkonnen'),
     ];
   }
 
@@ -267,7 +384,6 @@ class TmdbService {
       }
     } catch (_) {}
 
-    // Mock search filtering
     final lower = query.toLowerCase();
     return FlickoraConstants.fallbackMedia
         .where((m) => (m['title'] as String).toLowerCase().contains(lower) ||

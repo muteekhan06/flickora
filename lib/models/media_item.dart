@@ -14,6 +14,9 @@ class MediaItem {
   final int? runtime;
   final String? tagline;
   final String? trailerKey;
+  final String? directStreamUrl; // Direct MP4 or HLS (.m3u8) video URL
+  final int numberOfSeasons;
+  final int numberOfEpisodes;
 
   MediaItem({
     required this.id,
@@ -29,12 +32,17 @@ class MediaItem {
     this.runtime,
     this.tagline,
     this.trailerKey,
+    this.directStreamUrl,
+    this.numberOfSeasons = 1,
+    this.numberOfEpisodes = 1,
   });
 
   String get posterUrl => FlickoraConstants.getPosterUrl(posterPath);
   String get backdropUrl => FlickoraConstants.getBackdropUrl(backdropPath);
 
   String get formattedRating => voteAverage.toStringAsFixed(1);
+
+  bool get hasDirectStream => directStreamUrl != null && directStreamUrl!.isNotEmpty;
 
   String get releaseYear {
     if (releaseDate.isEmpty) return 'N/A';
@@ -50,7 +58,7 @@ class MediaItem {
   }
 
   String get formattedRuntime {
-    if (runtime == null || runtime == 0) return '2h 15m';
+    if (runtime == null || runtime == 0) return mediaType == 'tv' ? '$numberOfSeasons Seasons' : '2h 15m';
     final hours = runtime! ~/ 60;
     final minutes = runtime! % 60;
     if (hours > 0) {
@@ -85,6 +93,9 @@ class MediaItem {
       runtime: json['runtime'],
       tagline: json['tagline'],
       trailerKey: json['trailer_key'],
+      directStreamUrl: json['direct_stream_url'],
+      numberOfSeasons: json['number_of_seasons'] ?? 1,
+      numberOfEpisodes: json['number_of_episodes'] ?? 1,
     );
   }
 
@@ -103,6 +114,9 @@ class MediaItem {
       'runtime': runtime,
       'tagline': tagline,
       'trailer_key': trailerKey,
+      'direct_stream_url': directStreamUrl,
+      'number_of_seasons': numberOfSeasons,
+      'number_of_episodes': numberOfEpisodes,
     };
   }
 
@@ -120,6 +134,9 @@ class MediaItem {
     int? runtime,
     String? tagline,
     String? trailerKey,
+    String? directStreamUrl,
+    int? numberOfSeasons,
+    int? numberOfEpisodes,
   }) {
     return MediaItem(
       id: id ?? this.id,
@@ -135,6 +152,9 @@ class MediaItem {
       runtime: runtime ?? this.runtime,
       tagline: tagline ?? this.tagline,
       trailerKey: trailerKey ?? this.trailerKey,
+      directStreamUrl: directStreamUrl ?? this.directStreamUrl,
+      numberOfSeasons: numberOfSeasons ?? this.numberOfSeasons,
+      numberOfEpisodes: numberOfEpisodes ?? this.numberOfEpisodes,
     );
   }
 }

@@ -129,6 +129,16 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 12),
               ],
 
+              // Free Full-Length Movies (100% Free Full Stream)
+              if (mediaProvider.freeCinema.isNotEmpty) ...[
+                const SectionHeader(
+                  title: 'Free Full-Length Movies',
+                  subtitle: 'Stream entire cinema features instantly in-app',
+                ),
+                _buildHorizontalMovieList(mediaProvider.freeCinema),
+                const SizedBox(height: 16),
+              ],
+
               // Trending Now
               const SectionHeader(title: 'Trending Now', subtitle: 'What people are streaming today'),
               if (mediaProvider.isLoading && mediaProvider.trending.isEmpty)

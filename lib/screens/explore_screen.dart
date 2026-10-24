@@ -16,7 +16,7 @@ class ExploreScreen extends StatefulWidget {
 
 class _ExploreScreenState extends State<ExploreScreen> {
   int? _selectedGenreId;
-  String _selectedType = 'all'; // 'all', 'movie', 'tv', 'anime'
+  String _selectedType = 'all'; // 'all', 'free', 'movie', 'tv', 'anime'
   bool _isLoading = false;
   List<MediaItem> _items = [];
 
@@ -52,7 +52,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
         );
         setState(() => _items = res);
       } else {
-        if (_selectedType == 'movie') {
+        if (_selectedType == 'free') {
+          final res = service.getFreeCinema();
+          setState(() => _items = res);
+        } else if (_selectedType == 'movie') {
           final res = await service.getPopularMovies();
           setState(() => _items = res);
         } else if (_selectedType == 'tv') {
@@ -101,6 +104,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               child: Row(
                 children: [
                   _buildTypeTab('all', 'All'),
+                  _buildTypeTab('free', 'Free Movies'),
                   _buildTypeTab('movie', 'Movies'),
                   _buildTypeTab('tv', 'Series'),
                   _buildTypeTab('anime', 'Anime'),
@@ -198,6 +202,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         onTap: () {
           setState(() {
             _selectedType = type;
+            _selectedGenreId = null;
           });
           _loadCategory();
         },
@@ -209,8 +214,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
           alignment: Alignment.center,
           child: Text(
             label,
+            textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               color: isSelected ? Colors.white : FlickoraTheme.textSecondary,
             ),

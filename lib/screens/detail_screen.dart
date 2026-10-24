@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../core/theme.dart';
 import '../models/media_item.dart';
 import '../models/cast.dart';
 import '../models/trailer.dart';
+import '../models/episode.dart';
+import '../models/watch_provider.dart';
 import '../services/tmdb_service.dart';
 import '../providers/watchlist_provider.dart';
 import '../widgets/custom_badge.dart';
@@ -26,7 +29,12 @@ class _DetailScreenState extends State<DetailScreen> {
   List<CastMember> _cast = [];
   List<VideoTrailer> _trailers = [];
   List<MediaItem> _similar = [];
+  List<WatchProvider> _providers = [];
+  List<Episode> _episodes = [];
+  int _selectedSeason = 1;
+
   bool _isLoading = true;
+  bool _isLoadingEpisodes = false;
   bool _isSynopsisExpanded = false;
 
   @override
@@ -43,12 +51,14 @@ class _DetailScreenState extends State<DetailScreen> {
       final castFuture = service.getCredits(_currentMedia.id, _currentMedia.mediaType);
       final trailersFuture = service.getTrailers(_currentMedia.id, _currentMedia.mediaType);
       final similarFuture = service.getSimilar(_currentMedia.id, _currentMedia.mediaType);
+      final providersFuture = service.getWatchProviders(_currentMedia.id, _currentMedia.mediaType);
 
       final results = await Future.wait([
         detailsFuture,
         castFuture,
         trailersFuture,
         similarFuture,
+        providersFuture,
       ]);
 
       if (mounted) {
@@ -57,24 +67,49 @@ class _DetailScreenState extends State<DetailScreen> {
           _cast = results[1] as List<CastMember>;
           _trailers = results[2] as List<VideoTrailer>;
           _similar = results[3] as List<MediaItem>;
+          _providers = results[4] as List<WatchProvider>;
           _isLoading = false;
         });
+
+        if (_currentMedia.mediaType == 'tv') {
+          _loadSeasonEpisodes(1);
+        }
       }
     } catch (_) {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  void _playTrailer([String? videoKey]) {
-    final key = videoKey ??
-        (_trailers.isNotEmpty ? _trailers.first.key : (_currentMedia.trailerKey ?? 'Way9Dexny3w'));
+  Future<void> _loadSeasonEpisodes(int seasonNum) async {
+    setState(() {
+      _selectedSeason = seasonNum;
+      _isLoadingEpisodes = true;
+    });
 
+    final service = context.read<TmdbService>();
+    try {
+      final eps = await service.getSeasonEpisodes(_currentMedia.id, seasonNum);
+      if (mounted) {
+        setState(() {
+          _episodes = eps;
+          _isLoadingEpisodes = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoadingEpisodes = false);
+    }
+  }
+
+  void _playVideo({String? directUrl, String? videoKey, String? episodeTitle}) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => PlayerScreen(
           media: _currentMedia,
-          initialVideoKey: key,
+          directStreamUrl: directUrl ?? _currentMedia.directStreamUrl,
+          initialVideoKey: videoKey ??
+              (_trailers.isNotEmpty ? _trailers.first.key : (_currentMedia.trailerKey ?? 'Way9Dexny3w')),
+          episodeTitle: episodeTitle,
         ),
       ),
     );
@@ -131,7 +166,7 @@ class _DetailScreenState extends State<DetailScreen> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Downloading $_currentMedia ($title) to offline storage...'),
+            content: Text('Downloading ${_currentMedia.title} ($title) for offline cinema play...'),
             backgroundColor: FlickoraTheme.bgCardHighlight,
             duration: const Duration(seconds: 2),
           ),
@@ -150,7 +185,7 @@ class _DetailScreenState extends State<DetailScreen> {
       backgroundColor: FlickoraTheme.bgDark,
       body: CustomScrollView(
         slivers: [
-          // Collapsible Parallax Header
+          // Parallax Backdrop Header
           SliverAppBar(
             expandedHeight: 380,
             pinned: true,
@@ -185,7 +220,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Sharing link for ${_currentMedia.title}...'),
+                      content: Text('Sharing Flickora link for ${_currentMedia.title}...'),
                       duration: const Duration(seconds: 1),
                     ),
                   );
@@ -208,25 +243,25 @@ class _DetailScreenState extends State<DetailScreen> {
                     ),
                   ),
 
-                  // Floating Play Button in the Center
+                  // Center Play Button
                   Center(
                     child: GestureDetector(
-                      onTap: () => _playTrailer(),
+                      onTap: () => _playVideo(),
                       child: Container(
-                        width: 64,
-                        height: 64,
+                        width: 68,
+                        height: 68,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: FlickoraTheme.primaryGradient,
                           boxShadow: [
                             BoxShadow(
-                              color: FlickoraTheme.primaryRed.withOpacity(0.5),
-                              blurRadius: 20,
-                              spreadRadius: 4,
+                              color: FlickoraTheme.primaryRed.withOpacity(0.55),
+                              blurRadius: 24,
+                              spreadRadius: 6,
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 38),
+                        child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 40),
                       ),
                     ),
                   ),
@@ -271,7 +306,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       CustomBadge.rating(_currentMedia.formattedRating),
-                      CustomBadge.quality(_currentMedia.voteAverage >= 8.0 ? '4K Ultra HD' : '1080p HD'),
+                      CustomBadge.quality(_currentMedia.hasDirectStream ? 'FREE FULL MOVIE' : (_currentMedia.voteAverage >= 8.0 ? '4K Ultra HD' : '1080p HD')),
                       CustomBadge(text: _currentMedia.releaseYear),
                       CustomBadge(text: _currentMedia.formattedRuntime),
                       CustomBadge(text: _currentMedia.mediaType.toUpperCase()),
@@ -279,15 +314,20 @@ class _DetailScreenState extends State<DetailScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Action Buttons: Play Trailer, Watchlist, Download
+                  // Action Buttons: Play Movie / Trailer, Watchlist, Download
                   Row(
                     children: [
-                      // Play Trailer Button
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () => _playTrailer(),
-                          icon: const Icon(Icons.play_circle_fill_rounded, size: 20),
-                          label: const Text('Play Trailer', style: TextStyle(fontWeight: FontWeight.w700)),
+                          onPressed: () => _playVideo(),
+                          icon: Icon(
+                            _currentMedia.hasDirectStream ? Icons.play_arrow_rounded : Icons.play_circle_fill_rounded,
+                            size: 22,
+                          ),
+                          label: Text(
+                            _currentMedia.hasDirectStream ? 'Watch Full Movie' : 'Watch Trailer',
+                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: FlickoraTheme.primaryRed,
                             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -297,7 +337,6 @@ class _DetailScreenState extends State<DetailScreen> {
                       ),
                       const SizedBox(width: 12),
 
-                      // Watchlist toggle
                       Container(
                         decoration: BoxDecoration(
                           color: isWatchlisted ? const Color(0x33E50914) : FlickoraTheme.bgSurface,
@@ -315,7 +354,6 @@ class _DetailScreenState extends State<DetailScreen> {
                       ),
                       const SizedBox(width: 12),
 
-                      // Download modal
                       Container(
                         decoration: BoxDecoration(
                           color: FlickoraTheme.bgSurface,
@@ -331,7 +369,66 @@ class _DetailScreenState extends State<DetailScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
+
+                  // Where to Stream Free / Watch Providers Section
+                  if (_providers.isNotEmpty) ...[
+                    Row(
+                      children: [
+                        const Icon(Icons.live_tv_rounded, size: 16, color: FlickoraTheme.accentRed),
+                        const SizedBox(width: 6),
+                        const Text(
+                          'Streaming Platforms & Free Providers',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _providers.map((p) {
+                        return ActionChip(
+                          backgroundColor: FlickoraTheme.bgSurface,
+                          side: BorderSide(
+                            color: p.type.contains('Free') ? FlickoraTheme.accentRed : Colors.white12,
+                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          label: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(p.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: p.type.contains('Free') ? const Color(0x33E50914) : Colors.white10,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  p.type,
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                    color: p.type.contains('Free') ? FlickoraTheme.accentRed : Colors.white70,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Opening stream on ${p.name}...'),
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
 
                   // Synopsis Section
                   const Text(
@@ -371,7 +468,123 @@ class _DetailScreenState extends State<DetailScreen> {
 
                   const SizedBox(height: 24),
 
-                  // Cast & Crew
+                  // TV Series Season & Episode Drilldown Section
+                  if (_currentMedia.mediaType == 'tv') ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Seasons & Episodes',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                        ),
+                        // Season pills
+                        Row(
+                          children: List.generate(
+                            _currentMedia.numberOfSeasons > 0 ? _currentMedia.numberOfSeasons : 3,
+                            (index) {
+                              final season = index + 1;
+                              final isSelected = _selectedSeason == season;
+                              return GestureDetector(
+                                onTap: () => _loadSeasonEpisodes(season),
+                                child: Container(
+                                  margin: const EdgeInsets.only(left: 6),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: isSelected ? FlickoraTheme.primaryRed : FlickoraTheme.bgSurface,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: isSelected ? FlickoraTheme.primaryRed : Colors.white12),
+                                  ),
+                                  child: Text(
+                                    'S$season',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      color: isSelected ? Colors.white : Colors.white70,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+
+                    if (_isLoadingEpisodes)
+                      const ShimmerLoader(width: double.infinity, height: 100)
+                    else
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _episodes.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          final ep = _episodes[index];
+                          return Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: FlickoraTheme.bgCard,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white10),
+                            ),
+                            child: Row(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: CachedNetworkImage(
+                                    imageUrl: ep.stillUrl,
+                                    width: 100,
+                                    height: 65,
+                                    fit: BoxFit.cover,
+                                    placeholder: (_, __) => Container(color: FlickoraTheme.bgCardHighlight),
+                                    errorWidget: (_, __, ___) => Container(color: FlickoraTheme.bgCardHighlight),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        ep.name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Episode ${ep.episodeNumber} • ${ep.formattedDuration}',
+                                        style: const TextStyle(fontSize: 11, color: FlickoraTheme.textMuted),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        ep.overview,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(fontSize: 11, color: FlickoraTheme.textSecondary),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.play_circle_fill_rounded, color: FlickoraTheme.primaryRed, size: 34),
+                                  onPressed: () {
+                                    _playVideo(
+                                      directUrl: ep.streamUrl,
+                                      episodeTitle: ep.name,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // Cast & Crew with Tap to ActorScreen
                   if (_cast.isNotEmpty) ...[
                     const Text(
                       'Top Cast',
@@ -405,7 +618,7 @@ class _DetailScreenState extends State<DetailScreen> {
                         itemBuilder: (context, index) {
                           final trailer = _trailers[index];
                           return GestureDetector(
-                            onTap: () => _playTrailer(trailer.key),
+                            onTap: () => _playVideo(videoKey: trailer.key),
                             child: Container(
                               width: 200,
                               decoration: BoxDecoration(

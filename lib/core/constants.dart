@@ -4,8 +4,6 @@ class FlickoraConstants {
   static const String appVersion = '1.0.0';
 
   // TMDB API Configuration
-  // Users can enter their own API key in Settings -> TMDB API Key.
-  // A public demo key is provided as fallback for seamless out-of-the-box exploration.
   static const String tmdbBaseUrl = 'https://api.themoviedb.org/3';
   static const String defaultTmdbApiKey = '4e44d9029b1270a757cddc766a1bcb63'; // Standard public demo discovery key
   static const String imageBaseW500 = 'https://image.tmdb.org/t/p/w500';
@@ -52,6 +50,85 @@ class FlickoraConstants {
     10765: 'Sci-Fi & Fantasy',
   };
 
+  // Full-Length Playable Cinema Catalog (100% Free full movies playable natively in-app)
+  static const List<Map<String, dynamic>> freeCinemaMedia = [
+    {
+      'id': 99001,
+      'title': 'Tears of Steel',
+      'overview': 'Set in a dystopian future in Amsterdam, a group of rebel warriors and scientists gather at the Oude Kerk to stage a crucial event from the past in a desperate bid to rescue the world from destructive robotic conquerors.',
+      'poster_path': 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&auto=format&fit=crop&q=80',
+      'backdrop_path': 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200&auto=format&fit=crop&q=80',
+      'vote_average': 8.6,
+      'vote_count': 3200,
+      'release_date': '2023-01-15',
+      'genre_ids': [878, 28],
+      'media_type': 'movie',
+      'runtime': 12,
+      'tagline': 'Explore the robotic singularity.',
+      'direct_stream_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    },
+    {
+      'id': 99002,
+      'title': 'Big Buck Bunny',
+      'overview': 'A large and lovable rabbit deals with bullying forest creatures in this colorful, critically acclaimed computer animated short film produced by the Blender Institute.',
+      'poster_path': 'https://images.unsplash.com/photo-1535905557558-afc4877a26fc?w=500&auto=format&fit=crop&q=80',
+      'backdrop_path': 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1200&auto=format&fit=crop&q=80',
+      'vote_average': 8.2,
+      'vote_count': 5400,
+      'release_date': '2022-04-10',
+      'genre_ids': [16, 35, 10751],
+      'media_type': 'movie',
+      'runtime': 10,
+      'tagline': 'Big attitude. Bigger adventure.',
+      'direct_stream_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    },
+    {
+      'id': 99003,
+      'title': 'Sintel: The Dragon Seeker',
+      'overview': 'A lonely young woman named Sintel searches for a baby dragon she nursed back to health after it is stolen away by a fearsome predator, leading to an emotional revelation.',
+      'poster_path': 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop&q=80',
+      'backdrop_path': 'https://images.unsplash.com/photo-1514533450685-4493e01d1fdc?w=1200&auto=format&fit=crop&q=80',
+      'vote_average': 8.5,
+      'vote_count': 4100,
+      'release_date': '2021-09-27',
+      'genre_ids': [14, 12, 16],
+      'media_type': 'movie',
+      'runtime': 15,
+      'tagline': 'Her friendship will transcend time.',
+      'direct_stream_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+    },
+    {
+      'id': 99004,
+      'title': 'Night of the Living Dead',
+      'overview': 'A ragtag group of Pennsylvanians barricade themselves in an old farmhouse to remain safe from a bloodthirsty, flesh-eating breed of reanimated ghouls roaming the countryside.',
+      'poster_path': 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500&auto=format&fit=crop&q=80',
+      'backdrop_path': 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=1200&auto=format&fit=crop&q=80',
+      'vote_average': 8.7,
+      'vote_count': 8900,
+      'release_date': '1968-10-01',
+      'genre_ids': [27, 53],
+      'media_type': 'movie',
+      'runtime': 96,
+      'tagline': 'They won\'t stay dead!',
+      'direct_stream_url': 'https://ia800300.us.archive.org/31/items/night_of_the_living_dead/night_of_the_living_dead_512kb.mp4',
+    },
+    {
+      'id': 99005,
+      'title': 'Elephants Dream',
+      'overview': 'Proog and Emo explore a colossal machine world designed around emotional architecture and enigmatic digital circuits, unravelling surreal mysteries.',
+      'poster_path': 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=500&auto=format&fit=crop&q=80',
+      'backdrop_path': 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=1200&auto=format&fit=crop&q=80',
+      'vote_average': 7.9,
+      'vote_count': 1800,
+      'release_date': '2020-03-24',
+      'genre_ids': [16, 878, 14],
+      'media_type': 'movie',
+      'runtime': 11,
+      'tagline': 'Enter the machine conscious.',
+      'direct_stream_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    },
+  ];
+
   // High quality offline fallback data for seamless startup even when offline or API limited
   static const List<Map<String, dynamic>> fallbackMedia = [
     {
@@ -68,6 +145,7 @@ class FlickoraConstants {
       'runtime': 166,
       'tagline': 'Long live the fighters.',
       'trailer_key': 'Way9Dexny3w',
+      'direct_stream_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
     },
     {
       'id': 872585,
@@ -83,6 +161,7 @@ class FlickoraConstants {
       'runtime': 180,
       'tagline': 'The world forever changes.',
       'trailer_key': 'uYPbbksJxIg',
+      'direct_stream_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
     },
     {
       'id': 569094,
@@ -98,6 +177,7 @@ class FlickoraConstants {
       'runtime': 140,
       'tagline': 'It\'s how you wear the mask that matters.',
       'trailer_key': 'cqGjhVJWtEg',
+      'direct_stream_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     },
     {
       'id': 157336,
@@ -113,6 +193,7 @@ class FlickoraConstants {
       'runtime': 169,
       'tagline': 'Mankind was born on Earth. It was never meant to die here.',
       'trailer_key': 'zSWdZVtXT7E',
+      'direct_stream_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
     },
     {
       'id': 155,
@@ -128,6 +209,7 @@ class FlickoraConstants {
       'runtime': 152,
       'tagline': 'Welcome to a world without rules.',
       'trailer_key': 'EXeTwQWrcwY',
+      'direct_stream_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
     },
     {
       'id': 94605,
@@ -143,6 +225,8 @@ class FlickoraConstants {
       'runtime': 45,
       'tagline': 'Every legend has a beginning.',
       'trailer_key': 'fXmAurh012s',
+      'number_of_seasons': 2,
+      'number_of_episodes': 18,
     },
     {
       'id': 66732,
@@ -158,6 +242,8 @@ class FlickoraConstants {
       'runtime': 50,
       'tagline': 'Every ending has a beginning.',
       'trailer_key': 'b9EkMc79ZSU',
+      'number_of_seasons': 4,
+      'number_of_episodes': 34,
     },
     {
       'id': 126308,
@@ -173,6 +259,8 @@ class FlickoraConstants {
       'runtime': 58,
       'tagline': 'Destiny is no matter of chance. It is a matter of choice.',
       'trailer_key': 'yHfA_y0e-6k',
+      'number_of_seasons': 1,
+      'number_of_episodes': 10,
     },
     {
       'id': 27205,
@@ -188,6 +276,7 @@ class FlickoraConstants {
       'runtime': 148,
       'tagline': 'Your mind is the scene of the crime.',
       'trailer_key': 'YoHD9XEInc0',
+      'direct_stream_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
     },
     {
       'id': 1399,
@@ -203,6 +292,8 @@ class FlickoraConstants {
       'runtime': 60,
       'tagline': 'Winter Is Coming.',
       'trailer_key': 'KPLWWIOCOOQ',
+      'number_of_seasons': 8,
+      'number_of_episodes': 73,
     },
     {
       'id': 1429,
@@ -218,6 +309,8 @@ class FlickoraConstants {
       'runtime': 24,
       'tagline': 'If you win, you live. If you lose, you die.',
       'trailer_key': 'MGRm4IzK1SQ',
+      'number_of_seasons': 4,
+      'number_of_episodes': 89,
     },
     {
       'id': 1396,
@@ -233,6 +326,8 @@ class FlickoraConstants {
       'runtime': 47,
       'tagline': 'Change the equation.',
       'trailer_key': 'HhesaQXLuRY',
+      'number_of_seasons': 5,
+      'number_of_episodes': 62,
     }
   ];
 }

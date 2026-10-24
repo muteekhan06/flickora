@@ -11,6 +11,7 @@ class MediaProvider with ChangeNotifier {
   String? _errorMessage;
 
   List<MediaItem> _heroItems = [];
+  List<MediaItem> _freeCinema = [];
   List<MediaItem> _trending = [];
   List<MediaItem> _popularMovies = [];
   List<MediaItem> _topRatedMovies = [];
@@ -21,6 +22,7 @@ class MediaProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   List<MediaItem> get heroItems => _heroItems;
+  List<MediaItem> get freeCinema => _freeCinema;
   List<MediaItem> get trending => _trending;
   List<MediaItem> get popularMovies => _popularMovies;
   List<MediaItem> get topRatedMovies => _topRatedMovies;
@@ -33,6 +35,8 @@ class MediaProvider with ChangeNotifier {
     notifyListeners();
 
     try {
+      _freeCinema = _service.getFreeCinema();
+
       final results = await Future.wait([
         _service.getTrending(),
         _service.getPopularMovies(),
@@ -47,7 +51,9 @@ class MediaProvider with ChangeNotifier {
       _popularTV = results[3];
       _anime = results[4];
 
-      if (_trending.isNotEmpty) {
+      if (_freeCinema.isNotEmpty) {
+        _heroItems = [..._freeCinema.take(2), ..._trending.take(3)];
+      } else if (_trending.isNotEmpty) {
         _heroItems = _trending.take(5).toList();
       } else if (_popularMovies.isNotEmpty) {
         _heroItems = _popularMovies.take(5).toList();

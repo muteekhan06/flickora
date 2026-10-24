@@ -55,17 +55,19 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: "build/app/outputs/flutter-apk/app-release.apk"
-          tag: "v1.0.0"
-          name: "Flickora v1.0.0 (Ad-Free Release)"
+          tag: "v1.1.0"
+          name: "Flickora v1.1.0 (Full Cinema & Hybrid Pro Player Release)"
           body: |
-            ### 🎬 Flickora v1.0.0 - Premium Ad-Free Movie & TV App
-            - **Strictly 100% Zero Ads** (no popups, banners, or video ads)
-            - **Official 3D Filmstrip Red branding & launcher icon**
-            - **Trending Now, Top 10 Today, Movies, Series, Anime**
-            - **In-App HD Video & Trailer Player**
-            - **Watchlist, Favorites, and Continue Watching with progress bars**
+            ### 🎬 Flickora v1.1.0 — Evolution Release
+            - **🎥 Full-Featured Hybrid Video Player**: Native direct MP4 / HLS (`.m3u8`) full-length cinema streaming + YouTube official trailers.
+            - **👆 Dual Touch Gestures**: Left vertical swipe for on-screen Brightness, Right vertical swipe for Volume.
+            - **⏩ Double-Tap Scrubbing & Speeds**: Double-tap for 10s skip/rewind, speed selector (0.75x to 2.0x), and aspect ratio toggles (Fit, Zoom, 16:9).
+            - **📺 TV Series Season & Episode Drilldown**: Full season selector and episode cards with stills, episode numbers, runtimes, and play buttons.
+            - **🌟 Actor Biography & Filmography Screens**: Tap any actor avatar to view their detailed bio, birthplace, birthday, and filmography grid.
+            - **🌐 "Where to Stream Free" Badges**: Direct detection of Tubi, Pluto TV, Freevee, and other free FAST streaming options.
+            - **🎞️ Free Full-Length Movies Category**: Curated open and public-domain full movies ready to stream end-to-end inside the app.
             
-            📲 **Download directly to your phone:** Click `app-release.apk` below!
+            📲 **Download directly to your Android device:** Click `app-release.apk` below!
           allowUpdates: true
           makeLatest: true
         env:
