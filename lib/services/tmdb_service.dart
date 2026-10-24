@@ -408,4 +408,12 @@ class TmdbService {
     } catch (_) {}
     return _getFallbackItems(genreFilter: genreId);
   }
+
+  // --- Discover Movies ---
+  Future<List<MediaItem>> getDiscoverMovies({int? genreId, int page = 1}) async {
+    if (genreId != null) {
+      return getByGenre(genreId, mediaType: 'movie');
+    }
+    return getPopularMovies(page: page);
+  }
 }
