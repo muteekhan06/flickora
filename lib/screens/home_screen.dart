@@ -258,8 +258,7 @@ class HomeScreen extends StatelessWidget {
                 SectionHeader(
                   title: 'Curated Cinema Stacks',
                   subtitle: 'Themed collections & editorial vaults',
-                  actionText: 'View All',
-                  onActionTap: () {
+                  onSeeAll: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const StacksScreen()),
