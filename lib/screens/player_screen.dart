@@ -7,13 +7,17 @@ import 'package:provider/provider.dart';
 import '../core/theme.dart';
 import '../models/media_item.dart';
 import '../models/subtitle_cue.dart';
+import '../models/scene_bookmark.dart';
+import '../services/storage_service.dart';
 import '../providers/watchlist_provider.dart';
+import '../providers/settings_provider.dart';
 
 class PlayerScreen extends StatefulWidget {
   final MediaItem media;
   final String? initialVideoKey;
   final String? directStreamUrl;
   final String? episodeTitle;
+  final int? initialSeekSeconds;
 
   const PlayerScreen({
     super.key,
@@ -21,6 +25,7 @@ class PlayerScreen extends StatefulWidget {
     this.initialVideoKey,
     this.directStreamUrl,
     this.episodeTitle,
+    this.initialSeekSeconds,
   });
 
   @override
@@ -80,6 +85,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
               _isPlaying = true;
             });
             _nativePlayerController!.play();
+            if (widget.initialSeekSeconds != null) {
+              _nativePlayerController!.seekTo(Duration(seconds: widget.initialSeekSeconds!));
+            }
           }
         });
 
@@ -90,12 +98,13 @@ class _PlayerScreenState extends State<PlayerScreen> {
       _youtubePlayerController?.dispose();
       _youtubePlayerController = YoutubePlayerController(
         initialVideoId: videoKey,
-        flags: const YoutubePlayerFlags(
+        flags: YoutubePlayerFlags(
           autoPlay: true,
           mute: false,
           enableCaption: true,
           showLiveFullscreenButton: true,
           useHybridComposition: true,
+          startAt: widget.initialSeekSeconds ?? 0,
         ),
       )..addListener(_youtubeListener);
     }
@@ -389,6 +398,131 @@ class _PlayerScreenState extends State<PlayerScreen> {
               }),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  void _showSoundLabDialog() {
+    final settings = context.read<SettingsProvider>();
+    final profiles = [
+      {'name': 'Dialogue Clarity Boost', 'desc': 'Equalizes 1-3 kHz voice bands for crisp speech over explosions', 'icon': Icons.record_voice_over_rounded},
+      {'name': 'Midnight Compression', 'desc': 'Dynamically controls spikes for late-night viewing without waking others', 'icon': Icons.nightlife_rounded},
+      {'name': 'IMAX Deep Bass', 'desc': 'Deep rumble & punchy low-frequency cinema impact for headphones', 'icon': Icons.speaker_group_rounded},
+      {'name': 'Acoustic Score Mode', 'desc': 'Lush wide stereo separation for orchestral scores and soundtrack lovers', 'icon': Icons.music_note_rounded},
+      {'name': 'Studio Neutral', 'desc': 'Uncolored, pure flat direct monitor mix as mixed by sound engineers', 'icon': Icons.equalizer_rounded},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: FlickoraTheme.bgSurface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.graphic_eq_rounded, color: Colors.cyanAccent, size: 22),
+                  SizedBox(width: 10),
+                  Text('Cinema Sound Lab & EQ', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                ],
+              ),
+              const SizedBox(height: 6),
+              const Text('Acoustic DSP mastering profiles tailored for headphone and speaker acoustics', style: TextStyle(fontSize: 12, color: FlickoraTheme.textMuted)),
+              const SizedBox(height: 14),
+              ...profiles.map((p) {
+                final isCurrent = settings.audioProfile == p['name'];
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(p['icon'] as IconData, color: isCurrent ? Colors.cyanAccent : Colors.white54),
+                  title: Text(p['name'] as String, style: TextStyle(fontSize: 13, color: isCurrent ? Colors.white : Colors.white70, fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal)),
+                  subtitle: Text(p['desc'] as String, style: const TextStyle(fontSize: 10, color: FlickoraTheme.textMuted)),
+                  trailing: isCurrent ? const Icon(Icons.check, color: Colors.cyanAccent, size: 18) : null,
+                  onTap: () {
+                    settings.setAudioProfile(p['name'] as String);
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Audio Profile: ${p['name']} Active'), duration: const Duration(seconds: 1)),
+                    );
+                  },
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAddBookmarkDialog() {
+    final currentSec = _currentPosition.inSeconds;
+    final timecode = _formatDuration(_currentPosition);
+    final controller = TextEditingController(text: 'Scene note at $timecode');
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: FlickoraTheme.bgSurface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              const Icon(Icons.bookmark_add_outlined, color: Colors.amber, size: 22),
+              const SizedBox(width: 8),
+              Text('Bookmark Scene ($timecode)', style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Add a personal note or quote for this moment in the film:', style: TextStyle(fontSize: 12, color: FlickoraTheme.textMuted)),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                style: const TextStyle(fontSize: 13, color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'Enter scene quote or description...',
+                  hintStyle: const TextStyle(color: FlickoraTheme.textMuted),
+                  filled: true,
+                  fillColor: FlickoraTheme.bgCard,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel', style: TextStyle(color: FlickoraTheme.textMuted)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final note = controller.text.trim();
+                final bookmark = SceneBookmark(
+                  id: 'bm_${DateTime.now().millisecondsSinceEpoch}',
+                  mediaId: widget.media.id,
+                  mediaTitle: widget.media.title,
+                  posterPath: widget.media.posterPath,
+                  seconds: currentSec,
+                  note: note.isNotEmpty ? note : 'Bookmarked scene at $timecode',
+                  createdAt: DateTime.now(),
+                );
+                await StorageService().saveSceneBookmark(bookmark);
+                if (ctx.mounted) Navigator.pop(ctx);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Scene bookmarked at $timecode! Saved.'), backgroundColor: FlickoraTheme.accentRed),
+                  );
+                }
+              },
+              child: const Text('Save Bookmark'),
+            ),
+          ],
         );
       },
     );
@@ -922,6 +1056,34 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                         ),
                                       ],
                                     ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+
+                                // Sound Lab EQ Profile
+                                GestureDetector(
+                                  onTap: _showSoundLabDialog,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white12,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Icon(Icons.graphic_eq_rounded, color: Colors.cyanAccent, size: 14),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+
+                                // Bookmark Scene
+                                GestureDetector(
+                                  onTap: _showAddBookmarkDialog,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white12,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Icon(Icons.bookmark_add_outlined, color: Colors.amber, size: 14),
                                   ),
                                 ),
                                 const SizedBox(width: 8),

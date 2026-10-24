@@ -19,6 +19,13 @@ import 'roulette_screen.dart';
 import 'stacks_screen.dart';
 import 'double_feature_screen.dart';
 import 'awards_screen.dart';
+import 'franchises_screen.dart';
+import 'directors_screen.dart';
+import 'trivia_screen.dart';
+import 'costar_connection_screen.dart';
+import 'palette_aesthetic_screen.dart';
+import 'notifications_screen.dart';
+import '../services/storage_service.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -102,14 +109,11 @@ class HomeScreen extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.notifications_none_rounded, color: Colors.white70),
-            tooltip: 'Notifications',
+            tooltip: 'Release Alerts & Radar',
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('You are on the latest ad-free Flickora version 1.0.0!'),
-                  duration: Duration(seconds: 2),
-                  backgroundColor: FlickoraTheme.bgCardHighlight,
-                ),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationsScreen()),
               );
             },
           ),
@@ -259,6 +263,144 @@ class HomeScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (_) => const AwardsScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // Discovery Row 4: Cinematic Universes & Director Retrospectives
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Franchise Hub',
+                        subtitle: 'MCU, Star Wars & Dune',
+                        badge: 'Dual Order',
+                        icon: Icons.hub_rounded,
+                        gradientColors: const [Color(0xFF0F1E36), Color(0xFF070E1A)],
+                        borderColor: Colors.blueAccent.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const FranchisesScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Auteur Spotlight',
+                        subtitle: 'Nolan, Denis & Tarantino',
+                        badge: 'Directors',
+                        icon: Icons.videocam_rounded,
+                        gradientColors: const [Color(0xFF26182C), Color(0xFF130B17)],
+                        borderColor: Colors.purple.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const DirectorsScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // Discovery Row 5: Cinephile IQ Quiz & Cinematography Palettes
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Cinephile IQ',
+                        subtitle: 'Daily 5-question trivia',
+                        badge: 'XP & Streak',
+                        icon: Icons.psychology_rounded,
+                        gradientColors: const [Color(0xFF2E240D), Color(0xFF171206)],
+                        borderColor: Colors.amber.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const TriviaScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Color Palettes',
+                        subtitle: 'Neon, Sepia & Pastel mood',
+                        badge: 'Aesthetic',
+                        icon: Icons.palette_rounded,
+                        gradientColors: const [Color(0xFF0E2B2A), Color(0xFF061414)],
+                        borderColor: Colors.cyanAccent.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const PaletteAestheticScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // Discovery Row 6: Six Degrees Co-Stars & Cinema Stacks
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Co-Star Path',
+                        subtitle: '6 Degrees of connection',
+                        badge: 'Cast Solver',
+                        icon: Icons.connect_without_contact_rounded,
+                        gradientColors: const [Color(0xFF192536), Color(0xFF0B111A)],
+                        borderColor: Colors.tealAccent.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const CoStarConnectionScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Cinema Stacks',
+                        subtitle: 'Curated playlists & vaults',
+                        badge: 'Editorial',
+                        icon: Icons.collections_bookmark_rounded,
+                        gradientColors: const [Color(0xFF301018), Color(0xFF140508)],
+                        borderColor: FlickoraTheme.accentRed.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const StacksScreen()),
                           );
                         },
                       ),

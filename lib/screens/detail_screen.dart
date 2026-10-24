@@ -14,8 +14,12 @@ import '../widgets/custom_badge.dart';
 import '../widgets/cast_card.dart';
 import '../widgets/movie_card.dart';
 import '../widgets/shimmer_loader.dart';
+import '../models/scene_bookmark.dart';
+import '../models/release_reminder.dart';
+import '../services/storage_service.dart';
 import 'player_screen.dart';
 import 'watch_party_screen.dart';
+import 'palette_aesthetic_screen.dart';
 
 class DetailScreen extends StatefulWidget {
   final MediaItem media;
@@ -845,6 +849,179 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
+  Widget _buildColorPaletteSection() {
+    final colors = [
+      const Color(0xFF1E2836),
+      const Color(0xFF384A61),
+      const Color(0xFFE50914),
+      const Color(0xFFF3C07B),
+      const Color(0xFF0F141C),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: FlickoraTheme.bgCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.palette_outlined, size: 18, color: Colors.amberAccent),
+                  SizedBox(width: 8),
+                  Text('Cinematography Palette', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                ],
+              ),
+              InkWell(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const PaletteAestheticScreen()));
+                },
+                child: const Text('Explore Aesthetic →', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: FlickoraTheme.accentRed)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Row(
+              children: colors.map((c) {
+                final hex = '#${c.value.toRadixString(16).substring(2).toUpperCase()}';
+                return Expanded(
+                  child: Container(
+                    height: 40,
+                    color: c,
+                    alignment: Alignment.center,
+                    child: Text(hex, style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: c.computeLuminance() > 0.5 ? Colors.black87 : Colors.white70)),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEasterEggsSection() {
+    final secrets = [
+      'IMAX camera rig was specially mounted on real vehicle chassis for maximum in-camera kinetic realism.',
+      'Sound designers blended acoustic animal cries with custom orchestral cellos for tension scoring.',
+      'Several dialogue exchanges in the third act were improvised on set and kept in the final theatrical cut.',
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: FlickoraTheme.bgCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.auto_stories_outlined, size: 18, color: Colors.deepOrangeAccent),
+              SizedBox(width: 8),
+              Text('Behind-the-Scenes & Easter Eggs', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...secrets.map((s) => Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.star_rate_rounded, size: 14, color: Colors.amberAccent),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(s, style: const TextStyle(fontSize: 12, color: FlickoraTheme.textSecondary, height: 1.35)),
+                ),
+              ],
+            ),
+          )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSceneBookmarksSection() {
+    final bookmarks = StorageService().getSceneBookmarks(_currentMedia.id);
+    if (bookmarks.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: FlickoraTheme.bgCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.amber.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.bookmark_added_rounded, size: 18, color: Colors.amber),
+                  SizedBox(width: 8),
+                  Text('Your Pinned Scene Bookmarks', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                ],
+              ),
+              Text('${bookmarks.length} Pinned', style: const TextStyle(fontSize: 11, color: FlickoraTheme.textMuted)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...bookmarks.map((bm) => Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: FlickoraTheme.bgSurface,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.white10),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: FlickoraTheme.primaryRed, borderRadius: BorderRadius.circular(6)),
+                  child: Text(bm.formattedTimecode, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white)),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(bm.note, style: const TextStyle(fontSize: 12, color: Colors.white70), maxLines: 1, overflow: TextOverflow.ellipsis),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.play_circle_outline_rounded, color: Colors.greenAccent, size: 20),
+                  tooltip: 'Jump to scene in player',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PlayerScreen(
+                          media: _currentMedia,
+                          initialVideoKey: _currentMedia.trailerKey ?? 'Way9Dexny3w',
+                          initialSeekSeconds: bm.seconds,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          )),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final watchlistProvider = context.watch<WatchlistProvider>();
@@ -1094,6 +1271,42 @@ class _DetailScreenState extends State<DetailScreen> {
                               context,
                               MaterialPageRoute(builder: (_) => WatchPartyScreen(media: _currentMedia)),
                             );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+
+                      // Release Reminder Bell
+                      Container(
+                        decoration: BoxDecoration(
+                          color: StorageService().isReminderSet(_currentMedia.id) ? const Color(0x33FFC107) : FlickoraTheme.bgSurface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: StorageService().isReminderSet(_currentMedia.id) ? Colors.amber : Colors.white12),
+                        ),
+                        child: IconButton(
+                          icon: Icon(
+                            StorageService().isReminderSet(_currentMedia.id) ? Icons.notifications_active_rounded : Icons.notifications_none_rounded,
+                            color: StorageService().isReminderSet(_currentMedia.id) ? Colors.amber : Colors.white,
+                          ),
+                          tooltip: 'Set Release Alert',
+                          onPressed: () async {
+                            final reminder = ReleaseReminder(
+                              mediaId: _currentMedia.id,
+                              title: _currentMedia.title,
+                              releaseDate: _currentMedia.releaseDate ?? 'Coming Soon',
+                              posterPath: _currentMedia.posterPath ?? '',
+                              addedAt: DateTime.now(),
+                            );
+                            final added = await StorageService().toggleReminder(reminder);
+                            setState(() {});
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(added ? 'Release alert set for ${_currentMedia.title}!' : 'Release alert removed.'),
+                                  duration: const Duration(seconds: 1),
+                                ),
+                              );
+                            }
                           },
                         ),
                       ),
@@ -1433,6 +1646,18 @@ class _DetailScreenState extends State<DetailScreen> {
 
                   // Camera & Technical Master Specs
                   _buildTechSpecsSection(),
+                  const SizedBox(height: 20),
+
+                  // Cinematography Color Palette
+                  _buildColorPaletteSection(),
+                  const SizedBox(height: 20),
+
+                  // Pinned Scene Bookmarks
+                  _buildSceneBookmarksSection(),
+                  const SizedBox(height: 20),
+
+                  // Behind-the-Scenes & Easter Eggs
+                  _buildEasterEggsSection(),
                   const SizedBox(height: 24),
 
                   // Similar Recommendations

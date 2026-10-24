@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/media_item.dart';
 import '../models/diary_entry.dart';
 import '../models/cinema_stack.dart';
+import '../models/scene_bookmark.dart';
+import '../models/release_reminder.dart';
 import '../core/constants.dart';
 
 class ContinueWatchingItem {
@@ -42,6 +44,10 @@ class StorageService {
   static const String _qualityKey = 'flickora_stream_quality';
   static const String _diaryKey = 'flickora_cinema_diary';
   static const String _stacksKey = 'flickora_cinema_stacks';
+  static const String _sceneBookmarksKey = 'flickora_scene_bookmarks';
+  static const String _remindersKey = 'flickora_release_reminders';
+  static const String _cinephileXpKey = 'flickora_cinephile_xp';
+  static const String _triviaStreakKey = 'flickora_trivia_streak';
 
   late SharedPreferences _prefs;
 
@@ -236,6 +242,76 @@ class StorageService {
       buffer.writeln('$title,$year,$rating10,$date,$rewatch,$review');
     }
     return buffer.toString();
+  }
+
+  // --- Scene Bookmarks ---
+  List<SceneBookmark> getSceneBookmarks([int? mediaId]) {
+    final raw = _prefs.getStringList(_sceneBookmarksKey) ?? [];
+    final all = raw.map((item) => SceneBookmark.fromJson(jsonDecode(item))).toList();
+    if (mediaId != null) {
+      return all.where((b) => b.mediaId == mediaId).toList();
+    }
+    return all;
+  }
+
+  Future<void> saveSceneBookmark(SceneBookmark bookmark) async {
+    final all = getSceneBookmarks();
+    all.insert(0, bookmark);
+    final raw = all.map((b) => jsonEncode(b.toJson())).toList();
+    await _prefs.setStringList(_sceneBookmarksKey, raw);
+  }
+
+  Future<void> deleteSceneBookmark(String bookmarkId) async {
+    final all = getSceneBookmarks();
+    all.removeWhere((b) => b.id == bookmarkId);
+    final raw = all.map((b) => jsonEncode(b.toJson())).toList();
+    await _prefs.setStringList(_sceneBookmarksKey, raw);
+  }
+
+  // --- Release Reminders ---
+  List<ReleaseReminder> getReminders() {
+    final raw = _prefs.getStringList(_remindersKey) ?? [];
+    return raw.map((r) => ReleaseReminder.fromJson(jsonDecode(r))).toList();
+  }
+
+  bool isReminderSet(int mediaId) {
+    final reminders = getReminders();
+    return reminders.any((r) => r.mediaId == mediaId);
+  }
+
+  Future<bool> toggleReminder(ReleaseReminder reminder) async {
+    final reminders = getReminders();
+    final index = reminders.indexWhere((r) => r.mediaId == reminder.mediaId);
+    bool added;
+    if (index >= 0) {
+      reminders.removeAt(index);
+      added = false;
+    } else {
+      reminders.insert(0, reminder);
+      added = true;
+    }
+    final raw = reminders.map((r) => jsonEncode(r.toJson())).toList();
+    await _prefs.setStringList(_remindersKey, raw);
+    return added;
+  }
+
+  // --- Cinephile XP & Streak ---
+  int getCinephileXp() {
+    return _prefs.getInt(_cinephileXpKey) ?? 150;
+  }
+
+  Future<void> addCinephileXp(int xp) async {
+    final current = getCinephileXp();
+    await _prefs.setInt(_cinephileXpKey, current + xp);
+  }
+
+  int getTriviaStreak() {
+    return _prefs.getInt(_triviaStreakKey) ?? 1;
+  }
+
+  Future<void> incrementTriviaStreak() async {
+    final current = getTriviaStreak();
+    await _prefs.setInt(_triviaStreakKey, current + 1);
   }
 
   Future<void> clearAllData() async {

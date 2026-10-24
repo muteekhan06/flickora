@@ -8,6 +8,12 @@ import '../providers/media_provider.dart';
 import '../services/storage_service.dart';
 import 'double_feature_screen.dart';
 import 'awards_screen.dart';
+import 'franchises_screen.dart';
+import 'directors_screen.dart';
+import 'trivia_screen.dart';
+import 'costar_connection_screen.dart';
+import 'palette_aesthetic_screen.dart';
+import 'notifications_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -108,6 +114,75 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
+  void _showAudioProfileDialog(BuildContext context, SettingsProvider settings) {
+    final profiles = [
+      'Dialogue Clarity Boost',
+      'Midnight Compression',
+      'IMAX Deep Bass',
+      'Acoustic Score Mode',
+      'Studio Neutral',
+    ];
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: FlickoraTheme.bgSurface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text('Cinema Audio Lab Profile', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: profiles.map((p) {
+              final isSelected = settings.audioProfile == p;
+              return ListTile(
+                title: Text(p, style: TextStyle(color: isSelected ? Colors.cyanAccent : Colors.white, fontSize: 13, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+                trailing: isSelected ? const Icon(Icons.check, color: Colors.cyanAccent) : null,
+                onTap: () {
+                  settings.setAudioProfile(p);
+                  Navigator.pop(context);
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showThemeDialog(BuildContext context, SettingsProvider settings) {
+    final themes = [
+      'OLED Midnight',
+      'Retro VHS Neon',
+      'Hollywood Velvet',
+      'Cyberpunk Matrix',
+    ];
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: FlickoraTheme.bgSurface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text('Cinematic Visual Theme', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: themes.map((t) {
+              final isSelected = settings.themePreset == t;
+              return ListTile(
+                title: Text(t, style: TextStyle(color: isSelected ? FlickoraTheme.accentRed : Colors.white, fontSize: 13, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+                trailing: isSelected ? const Icon(Icons.check, color: FlickoraTheme.accentRed) : null,
+                onTap: () {
+                  settings.setThemePreset(t);
+                  Navigator.pop(context);
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
   void _showAboutDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -127,7 +202,7 @@ class SettingsScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 2, color: Colors.white),
                 ),
               ),
-              const Text('Version 1.4.0 (The Master Edition)', style: TextStyle(fontSize: 11, color: FlickoraTheme.textMuted)),
+              const Text('Version 1.5.0 (The Ultimate Cinephile Suite)', style: TextStyle(fontSize: 11, color: FlickoraTheme.textMuted)),
               const SizedBox(height: 14),
               const Text(
                 'Flickora is a next-generation streaming & media exploration app built with Flutter and Dart. Designed with a strict zero-ad policy, delivering ultra-fluid animations, 4K metadata discovery, and personalized watchlists.\n\nBuilt for University Project & Portfolio Showcase.',
@@ -230,6 +305,18 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => _showQualityDialog(context, settings),
           ),
           _buildTile(
+            icon: Icons.graphic_eq_rounded,
+            title: 'Cinema Sound Lab Profile',
+            subtitle: settings.audioProfile,
+            onTap: () => _showAudioProfileDialog(context, settings),
+          ),
+          _buildTile(
+            icon: Icons.palette_outlined,
+            title: 'Cinematic Visual Theme',
+            subtitle: settings.themePreset,
+            onTap: () => _showThemeDialog(context, settings),
+          ),
+          _buildTile(
             icon: Icons.data_saver_on_rounded,
             title: 'Data Saver',
             subtitle: 'Reduce streaming bitrate on cellular data',
@@ -243,7 +330,73 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Cinema Vaults & Marathons
-          _buildSectionHeader('CINEMA VAULTS & MARATHONS'),
+          _buildSectionHeader('CINEMA VAULTS & HUBS'),
+          _buildTile(
+            icon: Icons.hub_rounded,
+            title: 'Cinematic Universes Hub',
+            subtitle: 'Marvel, Star Wars & Dune timeline trackers',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FranchisesScreen()),
+              );
+            },
+          ),
+          _buildTile(
+            icon: Icons.videocam_rounded,
+            title: 'Director & Auteur Retrospectives',
+            subtitle: 'Nolan, Denis, Tarantino & Miyazaki spotlights',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const DirectorsScreen()),
+              );
+            },
+          ),
+          _buildTile(
+            icon: Icons.psychology_rounded,
+            title: 'Cinephile IQ Challenge',
+            subtitle: 'Daily 5-question trivia & XP ranks',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TriviaScreen()),
+              );
+            },
+          ),
+          _buildTile(
+            icon: Icons.palette_rounded,
+            title: 'Cinematography Color Palettes',
+            subtitle: 'Browse films by aesthetic visual mood',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PaletteAestheticScreen()),
+              );
+            },
+          ),
+          _buildTile(
+            icon: Icons.connect_without_contact_rounded,
+            title: 'Six Degrees of Co-Stars',
+            subtitle: 'Shortest path finder between Hollywood actors',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CoStarConnectionScreen()),
+              );
+            },
+          ),
+          _buildTile(
+            icon: Icons.notifications_active_rounded,
+            title: 'Release Radar & Drop Alerts',
+            subtitle: 'Track upcoming premieres and theatrical drops',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+              );
+            },
+          ),
           _buildTile(
             icon: Icons.movie_filter_rounded,
             title: 'Double Feature Generator',

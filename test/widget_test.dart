@@ -5,6 +5,11 @@ import 'package:flickora/models/actor.dart';
 import 'package:flickora/models/diary_entry.dart';
 import 'package:flickora/models/cinema_stack.dart';
 import 'package:flickora/models/subtitle_cue.dart';
+import 'package:flickora/models/scene_bookmark.dart';
+import 'package:flickora/models/trivia_question.dart';
+import 'package:flickora/models/cinematic_universe.dart';
+import 'package:flickora/models/director_profile.dart';
+import 'package:flickora/models/release_reminder.dart';
 import 'package:flickora/core/constants.dart';
 
 void main() {
@@ -124,7 +129,7 @@ void main() {
     expect(FlickoraConstants.freeCinemaMedia.isNotEmpty, isTrue);
     expect(FlickoraConstants.fallbackMedia.isNotEmpty, isTrue);
     expect(FlickoraConstants.appName, 'Flickora');
-    expect(FlickoraConstants.appVersion, '1.4.0');
+    expect(FlickoraConstants.appVersion, '1.5.0');
   });
 
   test('SubtitleCue and SubtitleTrack cue matching works accurately', () {
@@ -143,5 +148,68 @@ void main() {
     final tracks = SubtitleTrack.getMockTracksFor('Oppenheimer');
     expect(tracks.length, greaterThanOrEqualTo(3));
     expect(tracks.any((t) => t.id == 'en'), isTrue);
+  });
+
+  test('SceneBookmark formats timecode and serializes correctly', () {
+    final bm = SceneBookmark(
+      id: 'bm_1',
+      mediaId: 157336,
+      mediaTitle: 'Interstellar',
+      seconds: 4462, // 1h 14m 22s
+      note: 'Docking sequence climax',
+      createdAt: DateTime.now(),
+    );
+
+    expect(bm.formattedTimecode, '01:14:22');
+    final json = bm.toJson();
+    final restored = SceneBookmark.fromJson(json);
+    expect(restored.id, 'bm_1');
+    expect(restored.seconds, 4462);
+    expect(restored.note, contains('Docking'));
+  });
+
+  test('TriviaQuestion deck has valid multiple-choice questions', () {
+    final deck = TriviaQuestion.getDailyDeck();
+    expect(deck.length, greaterThanOrEqualTo(5));
+    for (var q in deck) {
+      expect(q.options.length, 4);
+      expect(q.correctIndex >= 0 && q.correctIndex < 4, isTrue);
+      expect(q.explanation.isNotEmpty, isTrue);
+    }
+  });
+
+  test('CinematicUniverse release vs chronological orders sort properly', () {
+    final universes = CinematicUniverse.getUniverses();
+    expect(universes.isNotEmpty, isTrue);
+
+    final mcu = universes.firstWhere((u) => u.id == 'marvel');
+    final release = mcu.inReleaseOrder;
+    final chrono = mcu.inChronologicalOrder;
+
+    expect(release.first.media.title, contains('Iron Man'));
+    expect(chrono.first.media.title, contains('Captain America'));
+  });
+
+  test('DirectorProfile masterworks and hallmarks are structured', () {
+    final directors = DirectorProfile.getDirectors();
+    expect(directors.length, greaterThanOrEqualTo(3));
+    final nolan = directors.firstWhere((d) => d.id == 'nolan');
+    expect(nolan.hallmarks.isNotEmpty, isTrue);
+    expect(nolan.filmography.length, greaterThanOrEqualTo(3));
+  });
+
+  test('ReleaseReminder serializes correctly', () {
+    final reminder = ReleaseReminder(
+      mediaId: 9999,
+      title: 'Avatar 3',
+      releaseDate: '2025-12-19',
+      posterPath: '/path.jpg',
+      addedAt: DateTime.now(),
+    );
+
+    final json = reminder.toJson();
+    final restored = ReleaseReminder.fromJson(json);
+    expect(restored.mediaId, 9999);
+    expect(restored.title, 'Avatar 3');
   });
 }

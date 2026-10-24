@@ -13,11 +13,25 @@ class SettingsProvider with ChangeNotifier {
 
   String? _customApiKey;
   String _streamQuality = '1080p Ultra HD';
+  String _audioProfile = 'Dialogue Clarity';
+  String _themePreset = 'OLED Midnight';
 
   String? get customApiKey => _customApiKey;
   String get streamQuality => _streamQuality;
+  String get audioProfile => _audioProfile;
+  String get themePreset => _themePreset;
 
   bool get hasCustomApiKey => _customApiKey != null && _customApiKey!.isNotEmpty;
+
+  void setAudioProfile(String profile) {
+    _audioProfile = profile;
+    notifyListeners();
+  }
+
+  void setThemePreset(String preset) {
+    _themePreset = preset;
+    notifyListeners();
+  }
 
   Future<void> setCustomApiKey(String? key) async {
     _customApiKey = key;
