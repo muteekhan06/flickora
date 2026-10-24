@@ -51,7 +51,7 @@ class _ScriptVaultScreenState extends State<ScriptVaultScreen> {
     ScriptExcerpt(
       title: 'Pulp Fiction',
       writers: 'Quentin Tarantino (Stories by Roger Avary)',
-      sceneHeading: 'INT. '68 CHEVY CHEVELLE (MOVING) - MORNING',
+      sceneHeading: "INT. '68 CHEVY CHEVELLE (MOVING) - MORNING",
       actionDescription: 'JULES is behind the wheel. VINCENT rides shotgun. They cruise down the sunny morning Los Angeles streets dressed in cheap dark suits.',
       character: 'VINCENT',
       dialogue: 'And you know what they call a Quarter Pounder with Cheese in Paris? They call it a Royale with Cheese.',

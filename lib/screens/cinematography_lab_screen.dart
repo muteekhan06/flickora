@@ -83,12 +83,14 @@ class _CinematographyLabScreenState extends State<CinematographyLabScreen> {
                     // Backdrop with Title Overlay
                     Stack(
                       children: [
-                        CachedNetworkImage(
-                          imageUrl: tech.media.backdropUrl,
-                          height: 160,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
+                        ColorFiltered(
                           colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.45), BlendMode.darken),
+                          child: CachedNetworkImage(
+                            imageUrl: tech.media.backdropUrl,
+                            height: 160,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         Positioned(
                           top: 12,
