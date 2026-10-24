@@ -5,12 +5,14 @@ class WatchProvider {
   final String name;
   final String? logoPath;
   final String type; // 'Stream Free', 'Subscription', 'Rent / Buy'
+  final String? link;
 
   WatchProvider({
     required this.id,
     required this.name,
     this.logoPath,
     required this.type,
+    this.link,
   });
 
   String get logoUrl {
@@ -26,6 +28,7 @@ class WatchProvider {
       name: json['provider_name'] ?? 'Streaming Provider',
       logoPath: json['logo_path'],
       type: type,
+      link: json['link'],
     );
   }
 }

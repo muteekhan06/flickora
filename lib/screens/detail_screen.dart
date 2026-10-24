@@ -737,7 +737,7 @@ class _DetailScreenState extends State<DetailScreen> {
                           ),
                           onPressed: () async {
                             final searchUrl = 'https://www.google.com/search?q=${Uri.encodeComponent('${_currentMedia.title} watch online on ${p.name}')}';
-                            final uri = Uri.parse(p.link.isNotEmpty ? p.link : searchUrl);
+                            final uri = Uri.parse((p.link != null && p.link!.isNotEmpty) ? p.link! : searchUrl);
                             try {
                               if (await canLaunchUrl(uri)) {
                                 await launchUrl(uri, mode: LaunchMode.externalApplication);
