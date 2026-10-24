@@ -15,6 +15,7 @@ import '../widgets/cast_card.dart';
 import '../widgets/movie_card.dart';
 import '../widgets/shimmer_loader.dart';
 import 'player_screen.dart';
+import 'watch_party_screen.dart';
 
 class DetailScreen extends StatefulWidget {
   final MediaItem media;
@@ -800,6 +801,50 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
+  Widget _buildTechSpecsSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: FlickoraTheme.bgCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.camera_alt_outlined, size: 18, color: Colors.cyanAccent),
+              SizedBox(width: 8),
+              Text(
+                'Camera & Technical Master Specs',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          _buildSpecRow('Aspect Ratio', '2.39:1 Scope (Anamorphic) / 1.43:1 IMAX'),
+          const Divider(color: Colors.white10, height: 16),
+          _buildSpecRow('Camera Systems', 'Arri Alexa 65 & IMAX MSM 9802 70mm'),
+          const Divider(color: Colors.white10, height: 16),
+          _buildSpecRow('Audio Formats', 'Dolby Atmos • IMAX 12-Track Digital Sound'),
+          const Divider(color: Colors.white10, height: 16),
+          _buildSpecRow('Color Mastering', 'Dolby Vision • DCI-P3 Wide Gamut 10-bit'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSpecRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 11.5, color: FlickoraTheme.textMuted)),
+        Text(value, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final watchlistProvider = context.watch<WatchlistProvider>();
@@ -1030,6 +1075,26 @@ class _DetailScreenState extends State<DetailScreen> {
                           icon: const Icon(Icons.download_rounded, color: Colors.white),
                           tooltip: 'Offline Download',
                           onPressed: _showDownloadDialog,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+
+                      // Watch Party Button
+                      Container(
+                        decoration: BoxDecoration(
+                          color: FlickoraTheme.bgSurface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white12),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.group_add_rounded, color: Colors.greenAccent),
+                          tooltip: 'Watch Party Live',
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => WatchPartyScreen(media: _currentMedia)),
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -1364,6 +1429,10 @@ class _DetailScreenState extends State<DetailScreen> {
 
                   // Parental Content & Age Advisory
                   _buildParentalAdvisorySection(),
+                  const SizedBox(height: 20),
+
+                  // Camera & Technical Master Specs
+                  _buildTechSpecsSection(),
                   const SizedBox(height: 24),
 
                   // Similar Recommendations

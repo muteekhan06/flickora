@@ -6,6 +6,7 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:provider/provider.dart';
 import '../core/theme.dart';
 import '../models/media_item.dart';
+import '../models/subtitle_cue.dart';
 import '../providers/watchlist_provider.dart';
 
 class PlayerScreen extends StatefulWidget {
@@ -47,9 +48,21 @@ class _PlayerScreenState extends State<PlayerScreen> {
   Timer? _sleepTimer;
   int? _sleepTimerMinutes;
 
+  bool _ambientGlowEnabled = true;
+  Color _ambientColor = const Color(0xFFE50914);
+  SubtitleTrack? _selectedSubtitleTrack;
+  List<SubtitleTrack> _availableSubtitles = [];
+  String? _currentSubtitleText;
+  bool _dialogBoostEnabled = false;
+  int _currentSourceIndex = 1;
+
   @override
   void initState() {
     super.initState();
+    _availableSubtitles = SubtitleTrack.getMockTracksFor(widget.media.title);
+    if (_availableSubtitles.isNotEmpty) {
+      _selectedSubtitleTrack = _availableSubtitles.first;
+    }
     _initializePlayer();
   }
 
@@ -107,6 +120,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               total.inSeconds,
             );
       }
+      _updateActiveSubtitle(pos);
     }
   }
 
@@ -123,6 +137,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               total.inSeconds,
             );
       }
+      _updateActiveSubtitle(pos);
     }
   }
 
@@ -243,6 +258,139 @@ class _PlayerScreenState extends State<PlayerScreen> {
     setState(() => _sleepTimerMinutes = null);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Sleep Timer cancelled'), duration: Duration(seconds: 1)),
+    );
+  }
+
+  void _updateActiveSubtitle(Duration pos) {
+    if (_selectedSubtitleTrack == null) {
+      if (_currentSubtitleText != null) setState(() => _currentSubtitleText = null);
+      return;
+    }
+    final active = _selectedSubtitleTrack!.cues.where((c) => c.isActiveAt(pos)).firstOrNull;
+    final newText = active?.text;
+    if (newText != _currentSubtitleText) {
+      setState(() => _currentSubtitleText = newText);
+    }
+  }
+
+  void _showSubtitleSelectorDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: FlickoraTheme.bgSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.subtitles_rounded, color: FlickoraTheme.accentRed, size: 22),
+                  SizedBox(width: 10),
+                  Text('Subtitle & Closed Captions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                ],
+              ),
+              const SizedBox(height: 14),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(
+                  _selectedSubtitleTrack == null ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                  color: _selectedSubtitleTrack == null ? FlickoraTheme.primaryRed : Colors.white54,
+                ),
+                title: const Text('Off (No Subtitles)', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  setState(() {
+                    _selectedSubtitleTrack = null;
+                    _currentSubtitleText = null;
+                  });
+                  Navigator.pop(ctx);
+                },
+              ),
+              ..._availableSubtitles.map((track) {
+                final isSel = _selectedSubtitleTrack?.id == track.id;
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    isSel ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                    color: isSel ? FlickoraTheme.primaryRed : Colors.white54,
+                  ),
+                  title: Text(track.languageName, style: TextStyle(color: isSel ? Colors.white : Colors.white70, fontWeight: isSel ? FontWeight.bold : FontWeight.normal)),
+                  onTap: () {
+                    setState(() => _selectedSubtitleTrack = track);
+                    Navigator.pop(ctx);
+                  },
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showSourceSwitcherDialog() {
+    final sources = [
+      {'index': 1, 'name': 'Stream Source 1: 4K Ultra Master (CDN)', 'quality': '4K HDR'},
+      {'index': 2, 'name': 'Stream Source 2: 1080p Fast Mirror', 'quality': '1080p'},
+      {'index': 3, 'name': 'Stream Source 3: HLS Adaptive Multi-Bitrate', 'quality': 'Auto'},
+      {'index': 4, 'name': 'Stream Source 4: Official Studio Trailer', 'quality': '1080p'},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: FlickoraTheme.bgSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.layers_rounded, color: Colors.blueAccent, size: 22),
+                  SizedBox(width: 10),
+                  Text('Stream Source Fallback CDN', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Text('Switch streaming CDN servers if encountering network latency', style: TextStyle(fontSize: 12, color: FlickoraTheme.textMuted)),
+              const SizedBox(height: 14),
+              ...sources.map((src) {
+                final idx = src['index'] as int;
+                final isCurrent = _currentSourceIndex == idx;
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    isCurrent ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                    color: isCurrent ? FlickoraTheme.primaryRed : Colors.white54,
+                  ),
+                  title: Text(src['name'] as String, style: TextStyle(fontSize: 13, color: isCurrent ? Colors.white : Colors.white70, fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal)),
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(4)),
+                    child: Text(src['quality'] as String, style: const TextStyle(fontSize: 10, color: Colors.white70)),
+                  ),
+                  onTap: () {
+                    setState(() => _currentSourceIndex = idx);
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Switched to ${src['name']}'), duration: const Duration(seconds: 1)),
+                    );
+                  },
+                );
+              }),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -448,6 +596,24 @@ class _PlayerScreenState extends State<PlayerScreen> {
           child: Stack(
             fit: StackFit.expand,
             children: [
+              // Cinema Ambient Glow (Ambilight Halo)
+              if (_ambientGlowEnabled)
+                Center(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    height: 240,
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: _ambientColor.withOpacity(0.4),
+                          blurRadius: 90,
+                          spreadRadius: 25,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
               // Video Surface
               Center(
                 child: _nativePlayerController != null && _nativePlayerController!.value.isInitialized
@@ -516,6 +682,34 @@ class _PlayerScreenState extends State<PlayerScreen> {
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                       ],
+                    ),
+                  ),
+                ),
+
+              // Live On-Screen Subtitle Rendering
+              if (_currentSubtitleText != null && _currentSubtitleText!.isNotEmpty)
+                Positioned(
+                  bottom: _showControls ? 84 : 28,
+                  left: 20,
+                  right: 20,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.82),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.white12),
+                      ),
+                      child: Text(
+                        _currentSubtitleText!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          shadows: [Shadow(color: Colors.black, blurRadius: 4, offset: Offset(1, 1))],
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -682,6 +876,75 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                               : '16:9',
                                       style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
                                     ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+
+                                // Subtitles toggle
+                                GestureDetector(
+                                  onTap: _showSubtitleSelectorDialog,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: _selectedSubtitleTrack != null ? FlickoraTheme.primaryRed : Colors.white12,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.subtitles_rounded, color: Colors.white, size: 12),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          _selectedSubtitleTrack != null ? _selectedSubtitleTrack!.languageCode.toUpperCase() : 'CC',
+                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+
+                                // Source CDN switcher
+                                GestureDetector(
+                                  onTap: _showSourceSwitcherDialog,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white12,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.layers_rounded, color: Colors.blueAccent, size: 12),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'S$_currentSourceIndex',
+                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+
+                                // Ambient Glow toggle
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() => _ambientGlowEnabled = !_ambientGlowEnabled);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(_ambientGlowEnabled ? 'Cinema Ambilight Glow: ON' : 'Cinema Ambilight Glow: OFF'),
+                                        duration: const Duration(seconds: 1),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: _ambientGlowEnabled ? const Color(0x33E50914) : Colors.white12,
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: _ambientGlowEnabled ? FlickoraTheme.accentRed : Colors.transparent),
+                                    ),
+                                    child: const Icon(Icons.wb_incandescent_outlined, color: Colors.white, size: 14),
                                   ),
                                 ),
                               ],

@@ -17,6 +17,8 @@ import 'radar_screen.dart';
 import 'cine_ai_screen.dart';
 import 'roulette_screen.dart';
 import 'stacks_screen.dart';
+import 'double_feature_screen.dart';
+import 'awards_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -211,6 +213,52 @@ class HomeScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (_) => const RouletteScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // Discovery Row 3: Double Feature Marathon & Awards Season Vault
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Double Features',
+                        subtitle: '2-film marathon pairings',
+                        badge: 'Marathon',
+                        icon: Icons.movie_filter_rounded,
+                        gradientColors: const [Color(0xFF132B25), Color(0xFF091612)],
+                        borderColor: Colors.tealAccent.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const DoubleFeatureScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Oscar & Awards',
+                        subtitle: 'Academy Award winners',
+                        badge: 'Gold Vault',
+                        icon: Icons.military_tech_rounded,
+                        gradientColors: const [Color(0xFF33200E), Color(0xFF170E06)],
+                        borderColor: Colors.amberAccent.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const AwardsScreen()),
                           );
                         },
                       ),

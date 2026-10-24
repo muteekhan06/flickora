@@ -4,6 +4,7 @@ import 'package:flickora/models/episode.dart';
 import 'package:flickora/models/actor.dart';
 import 'package:flickora/models/diary_entry.dart';
 import 'package:flickora/models/cinema_stack.dart';
+import 'package:flickora/models/subtitle_cue.dart';
 import 'package:flickora/core/constants.dart';
 
 void main() {
@@ -123,5 +124,24 @@ void main() {
     expect(FlickoraConstants.freeCinemaMedia.isNotEmpty, isTrue);
     expect(FlickoraConstants.fallbackMedia.isNotEmpty, isTrue);
     expect(FlickoraConstants.appName, 'Flickora');
+    expect(FlickoraConstants.appVersion, '1.4.0');
+  });
+
+  test('SubtitleCue and SubtitleTrack cue matching works accurately', () {
+    final cue = SubtitleCue(
+      start: const Duration(seconds: 5),
+      end: const Duration(seconds: 10),
+      text: 'Cinema is life.',
+    );
+
+    expect(cue.isActiveAt(const Duration(seconds: 4)), isFalse);
+    expect(cue.isActiveAt(const Duration(seconds: 5)), isTrue);
+    expect(cue.isActiveAt(const Duration(seconds: 7)), isTrue);
+    expect(cue.isActiveAt(const Duration(seconds: 10)), isTrue);
+    expect(cue.isActiveAt(const Duration(seconds: 11)), isFalse);
+
+    final tracks = SubtitleTrack.getMockTracksFor('Oppenheimer');
+    expect(tracks.length, greaterThanOrEqualTo(3));
+    expect(tracks.any((t) => t.id == 'en'), isTrue);
   });
 }

@@ -221,6 +221,23 @@ class StorageService {
     await _prefs.setString(_qualityKey, quality);
   }
 
+  // --- Letterboxd CSV Export ---
+  String exportLetterboxdCsv() {
+    final diary = getDiary();
+    final buffer = StringBuffer();
+    buffer.writeln('Title,Year,Rating10,WatchedDate,Rewatch,Review');
+    for (var entry in diary) {
+      final title = '"${entry.media.title.replaceAll('"', '""')}"';
+      final year = entry.media.releaseYear;
+      final rating10 = (entry.rating * 2).toInt();
+      final date = entry.watchedDate.toIso8601String().substring(0, 10);
+      final rewatch = entry.rewatch ? 'Yes' : 'No';
+      final review = '"${entry.reviewText.replaceAll('"', '""')}"';
+      buffer.writeln('$title,$year,$rating10,$date,$rewatch,$review');
+    }
+    return buffer.toString();
+  }
+
   Future<void> clearAllData() async {
     await _prefs.clear();
   }

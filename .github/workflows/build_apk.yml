@@ -55,26 +55,38 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: "build/app/outputs/flutter-apk/app-release.apk"
-          tag: "v1.3.0"
-          name: "Flickora v1.3.0 (Ultra Cinema Edition — CineAI Oracle, Stacks & Roulette)"
+          tag: "v1.4.0"
+          name: "Flickora v1.4.0 (The Master Edition — Subtitles, Ambient Glow, Double Features & Watch Party)"
           body: |
-            ### 🚀 Flickora v1.3.0 — The Ultra Cinema Edition
-            
-            Flickora reaches new heights of cinematic luxury, personalization, and intelligent discovery!
-            
-            #### 🌟 What's New in v1.3.0:
-            - **🤖 CineAI Film Oracle (`CineAiScreen`)**: Intelligent in-app conversational cinema companion with quick prompts, deep plot discussions, and interactive embedded recommendation cards.
-            - **🎲 Cinema Roulette / "Spin the Reel" (`RouletteScreen`)**: Can't decide what to watch? Spin the cinematic slot reel with genre, rating, and free stream filters to pick your next feature with fanfare!
-            - **📚 Curated Themed Cinema Stacks (`StacksScreen`)**: Create and organize custom film collections (e.g., *"Late Night Neon Noir"*, *"Comfort Classics"*), plus 4 official Flickora Editorial Stacks.
-            - **🎼 Original Soundtracks & Score Explorer**: Discover legendary composers (Hans Zimmer, Ludwig Göransson, John Williams, etc.) with 1-tap listening on Spotify and YouTube Music.
-            - **🛡️ Content & Age Advisory (Parental Guide)**: Clear color-coded content rating breakdown (Violence & Action, Suspense & Fear, Profanity, Sensuality).
-            - **🎟️ Shareable Cinephile Passport (`CinephilePassportScreen`)**: Generate your verified cinema passport featuring your cinephile rank, hours logged, top genre, and hall-of-fame movie poster mosaic.
-            - **🌙 Pro Player Sleep Timer**: Set a timer for 15, 30, 45, or 60 minutes with automated playback pause and countdown indicator.
-            - **📖 Cinema Diary & Watch Stats**: Full Letterboxd-style logging, 5-star ratings, watch history, and personal stats dashboard.
-            - **🧠 "What to Watch Tonight?" Mood Matcher & Radar**: 3-step quiz algorithm + Live premiere countdowns & Box Office leaders.
-            - **🎥 Full-Featured Hybrid Video Player**: On-screen gesture controls (swipe brightness & volume), playback speeds (0.5x–2.0x), aspect ratio toggles, and public domain full streams.
+            ### 👑 Flickora v1.4.0 — The Master Edition
+
+            Flickora's definitive cinephile release — engineered with studio-grade playback, ambient immersion, social watch parties, marathon pairing, and full data portability!
+
+            #### 🌟 What's New in v1.4.0 (The Master Edition):
+            - **💬 Live Subtitles & Closed Captions Engine (`SubtitleCue`, `SubtitleTrack`)**:
+              - Multilingual in-player subtitle tracks (English, Spanish, French, German, Japanese, Portuguese, off).
+              - Crisp on-screen rendering with high-contrast cinematic black backdrop and responsive time-synced cue playback.
+            - **✨ Cinema Ambient Glow (Ambilight Halo)**:
+              - Dynamic diffused ambient lighting glow projecting behind active video playback, matching real-time scene lighting and enhancing depth in dark-room viewing.
+            - **🔄 Multi-Source Stream CDN & Bitrate Switcher**:
+              - Instant in-player stream source switcher (4K Master Stream, 1080p Mirror, HLS Multi-bitrate Adaptive, Studio HD Master Trailer) with seamless fallback.
+            - **🍿 Double Feature Marathon Generator (`DoubleFeatureScreen`)**:
+              - Curated 2-movie marathon pairings with thematic symmetry (e.g. *Interstellar* + *Arrival*, *The Dark Knight* + *Heat*, *Spirited Away* + *Spider-Verse*).
+              - Combined marathon runtimes, intermission break advice, and 1-tap "Save as Stack" integration.
+            - **🏆 Awards Season & Oscar Vault Tracker (`AwardsScreen`)**:
+              - Dedicated Oscar Best Picture, Palme d'Or, and Academy Award winning masterworks vault.
+              - Filter by decade (2020s, 2010s, 2000s, Classics), award badges, director honors, and instant 1-tap playback.
+            - **👥 Synchronized Community Watch Party Lounge (`WatchPartyScreen`)**:
+              - Host and join live watch rooms with 6-character room codes (`FLK-xxx`).
+              - Real-time live party chat feed, participant counter & avatars, and floating animated emoji reactions (🍿, 🔥, 😱, 🤯, ❤️, 👏).
+            - **🎥 Camera Tech Specs & Technical Master Sheet**:
+              - Native technical metadata inspect on movie details: Aspect Ratio (e.g., 2.39:1 Panavision / 1.43:1 IMAX 70mm), Cameras, Sound Mix (Dolby Atmos, 7.1), Color Process (Dolby Vision, HDR10).
+            - **📊 Letterboxd CSV Data Export**:
+              - Export your entire watchlist, ratings, and watch history in official Letterboxd import CSV format directly to clipboard from Settings.
+            - **🤖 CineAI Film Oracle & Roulette**: Conversational cinema AI companion + instant slot reel film picker.
+            - **📚 Themed Cinema Stacks & Soundtracks Vault**: Curated stacks and Spotify / YouTube Music score deep links.
             - **🚫 100% Ad-Free**: Strictly zero ads, zero subscriptions, zero tracking.
-            
+
             📲 **Download directly to your Android device:** Click `app-release.apk` below!
           allowUpdates: true
           makeLatest: true

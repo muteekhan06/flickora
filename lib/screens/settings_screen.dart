@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../core/theme.dart';
 import '../core/constants.dart';
 import '../providers/settings_provider.dart';
 import '../providers/media_provider.dart';
+import '../services/storage_service.dart';
+import 'double_feature_screen.dart';
+import 'awards_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -123,7 +127,7 @@ class SettingsScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 2, color: Colors.white),
                 ),
               ),
-              const Text('Version 1.0.0 (Release Build)', style: TextStyle(fontSize: 11, color: FlickoraTheme.textMuted)),
+              const Text('Version 1.4.0 (The Master Edition)', style: TextStyle(fontSize: 11, color: FlickoraTheme.textMuted)),
               const SizedBox(height: 14),
               const Text(
                 'Flickora is a next-generation streaming & media exploration app built with Flutter and Dart. Designed with a strict zero-ad policy, delivering ultra-fluid animations, 4K metadata discovery, and personalized watchlists.\n\nBuilt for University Project & Portfolio Showcase.',
@@ -238,8 +242,52 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          // API & Catalog Settings
-          _buildSectionHeader('CATALOG & API'),
+          // Cinema Vaults & Marathons
+          _buildSectionHeader('CINEMA VAULTS & MARATHONS'),
+          _buildTile(
+            icon: Icons.movie_filter_rounded,
+            title: 'Double Feature Generator',
+            subtitle: 'Curated 2-movie back-to-back marathon pairings',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const DoubleFeatureScreen()),
+              );
+            },
+          ),
+          _buildTile(
+            icon: Icons.military_tech_rounded,
+            title: 'Awards Season & Oscar Vault',
+            subtitle: 'All-time Academy Award & Palme d\'Or masterworks',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AwardsScreen()),
+              );
+            },
+          ),
+
+          const SizedBox(height: 24),
+
+          // Catalog & Data Portability
+          _buildSectionHeader('DATA PORTABILITY & SYNC'),
+          _buildTile(
+            icon: Icons.file_download_outlined,
+            title: 'Export to Letterboxd (CSV)',
+            subtitle: 'Export your watchlist & ratings in official Letterboxd format',
+            onTap: () async {
+              final csv = await StorageService().exportLetterboxdCsv();
+              await Clipboard.setData(ClipboardData(text: csv));
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Letterboxd CSV copied to clipboard! Ready to import on letterboxd.com'),
+                    backgroundColor: FlickoraTheme.accentRed,
+                  ),
+                );
+              }
+            },
+          ),
           _buildTile(
             icon: Icons.key_rounded,
             title: 'TMDB API Key',
