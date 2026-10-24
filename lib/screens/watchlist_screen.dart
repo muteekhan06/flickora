@@ -5,9 +5,12 @@ import 'package:intl/intl.dart';
 import '../core/theme.dart';
 import '../models/media_item.dart';
 import '../models/diary_entry.dart';
+import '../models/cinema_stack.dart';
 import '../providers/watchlist_provider.dart';
 import 'detail_screen.dart';
 import 'player_screen.dart';
+import 'cinephile_passport_screen.dart';
+import 'stacks_screen.dart';
 
 class WatchlistScreen extends StatefulWidget {
   const WatchlistScreen({super.key});
@@ -22,7 +25,7 @@ class _WatchlistScreenState extends State<WatchlistScreen> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -53,6 +56,7 @@ class _WatchlistScreenState extends State<WatchlistScreen> with SingleTickerProv
           labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
           tabs: [
             Tab(text: 'Watchlist (${provider.watchlist.length})'),
+            Tab(text: 'Stacks (${provider.stacks.length})'),
             Tab(text: 'Favorites (${provider.favorites.length})'),
             Tab(text: 'History (${provider.continueWatching.length})'),
             Tab(text: 'Diary & Stats (${provider.diary.length})'),
@@ -68,6 +72,9 @@ class _WatchlistScreenState extends State<WatchlistScreen> with SingleTickerProv
             emptyMessage: 'Your watchlist is empty.\nSave movies and shows you want to watch!',
             onRemove: (item) => provider.toggleWatchlist(item),
           ),
+
+          // Stacks tab
+          _buildStacksTab(provider),
 
           // Favorites tab
           _buildMediaList(
@@ -131,6 +138,55 @@ class _WatchlistScreenState extends State<WatchlistScreen> with SingleTickerProv
                   ],
                 ),
               ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // View Cinephile Passport Button
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CinephilePassportScreen()),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF28200C), Color(0xFF14120D)],
+                ),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFFD4AF37).withOpacity(0.5)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.badge_rounded, color: Color(0xFFD4AF37), size: 24),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          'View My Cinephile Passport',
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFD4AF37),
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Rank, badges, and shareable annual cinema card',
+                          style: TextStyle(fontSize: 11, color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFD4AF37), size: 14),
+                ],
+              ),
             ),
           ),
 
@@ -534,6 +590,148 @@ class _WatchlistScreenState extends State<WatchlistScreen> with SingleTickerProv
           ),
         );
       },
+    );
+  }
+
+  Widget _buildStacksTab(WatchlistProvider provider) {
+    final stacks = provider.stacks;
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: FlickoraTheme.primaryRed,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('New Stack', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const StacksScreen()),
+          );
+        },
+      ),
+      body: stacks.isEmpty
+          ? const Center(
+              child: Text('No stacks created yet', style: TextStyle(color: FlickoraTheme.textMuted)),
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 80),
+              itemCount: stacks.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 14),
+              itemBuilder: (context, index) {
+                final stack = stacks[index];
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => StackDetailScreen(stack: stack)),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: FlickoraTheme.bgCard,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: FlickoraTheme.bgSurface,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(stack.emoji, style: const TextStyle(fontSize: 22)),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          stack.title,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: stack.isEditorial ? const Color(0x33E50914) : Colors.white10,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          stack.isEditorial ? 'EDITORIAL' : 'CUSTOM',
+                                          style: TextStyle(
+                                            fontSize: 8.5,
+                                            fontWeight: FontWeight.w800,
+                                            color: stack.isEditorial ? FlickoraTheme.accentRed : Colors.white70,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    '${stack.items.length} titles • ${stack.curator}',
+                                    style: const TextStyle(fontSize: 11, color: FlickoraTheme.textMuted),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (stack.description.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            stack.description,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 11.5, color: FlickoraTheme.textSecondary, height: 1.3),
+                          ),
+                        ],
+                        if (stack.items.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            height: 90,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: stack.items.take(8).length,
+                              separatorBuilder: (_, __) => const SizedBox(width: 8),
+                              itemBuilder: (context, i) {
+                                final item = stack.items[i];
+                                return ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: CachedNetworkImage(
+                                    imageUrl: item.posterUrl,
+                                    width: 62,
+                                    height: 90,
+                                    fit: BoxFit.cover,
+                                    placeholder: (_, __) => Container(color: Colors.white10),
+                                    errorWidget: (_, __, ___) => Container(color: Colors.white10),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../core/theme.dart';
 import '../models/media_item.dart';
+import '../models/cinema_stack.dart';
 import '../providers/media_provider.dart';
 import '../providers/watchlist_provider.dart';
 import '../widgets/hero_carousel.dart';
@@ -13,6 +14,9 @@ import 'detail_screen.dart';
 import 'player_screen.dart';
 import 'mood_matcher_screen.dart';
 import 'radar_screen.dart';
+import 'cine_ai_screen.dart';
+import 'roulette_screen.dart';
+import 'stacks_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -77,6 +81,23 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
         actions: [
+          IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                gradient: FlickoraTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.auto_awesome, color: Colors.white, size: 16),
+            ),
+            tooltip: 'CineAI Oracle',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CineAiScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.notifications_none_rounded, color: Colors.white70),
             tooltip: 'Notifications',
@@ -152,6 +173,52 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
 
+              const SizedBox(height: 10),
+
+              // Discovery Row 2: CineAI Oracle & Cinema Roulette
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'CineAI Oracle',
+                        subtitle: 'AI film companion',
+                        badge: 'Smart AI',
+                        icon: Icons.auto_awesome,
+                        gradientColors: const [Color(0xFF2E1A47), Color(0xFF160D23)],
+                        borderColor: Colors.purpleAccent.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const CineAiScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Cinema Roulette',
+                        subtitle: 'Spin & pick a film',
+                        badge: 'Can\'t Decide?',
+                        icon: Icons.casino_rounded,
+                        gradientColors: const [Color(0xFF2A200B), Color(0xFF141006)],
+                        borderColor: Colors.amber.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const RouletteScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
               const SizedBox(height: 16),
 
               // Continue Watching Row (if any)
@@ -183,6 +250,23 @@ class HomeScreen extends StatelessWidget {
                   subtitle: 'Stream entire cinema features instantly in-app',
                 ),
                 _buildHorizontalMovieList(mediaProvider.freeCinema),
+                const SizedBox(height: 16),
+              ],
+
+              // Curated Cinema Stacks (Themed Editorial Collections)
+              if (watchlistProvider.stacks.isNotEmpty) ...[
+                SectionHeader(
+                  title: 'Curated Cinema Stacks',
+                  subtitle: 'Themed collections & editorial vaults',
+                  actionText: 'View All',
+                  onActionTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const StacksScreen()),
+                    );
+                  },
+                ),
+                _buildStacksHorizontal(context, watchlistProvider.stacks),
                 const SizedBox(height: 16),
               ],
 
@@ -475,6 +559,76 @@ class HomeScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildStacksHorizontal(BuildContext context, List<CinemaStack> stacks) {
+    return SizedBox(
+      height: 140,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        scrollDirection: Axis.horizontal,
+        itemCount: stacks.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, i) {
+          final stack = stacks[i];
+          return InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => StackDetailScreen(stack: stack)),
+              );
+            },
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              width: 210,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: FlickoraTheme.bgCard,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(stack.emoji, style: const TextStyle(fontSize: 20)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          stack.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    stack.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 10.5, color: FlickoraTheme.textMuted, height: 1.3),
+                  ),
+                  const Spacer(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${stack.items.length} titles',
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: FlickoraTheme.accentRed),
+                      ),
+                      const Icon(Icons.arrow_forward_rounded, size: 14, color: Colors.white54),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

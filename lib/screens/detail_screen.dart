@@ -468,6 +468,338 @@ class _DetailScreenState extends State<DetailScreen> {
     ];
   }
 
+  void _showAddToStackSheet(BuildContext context) {
+    final watchlistProvider = context.read<WatchlistProvider>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: FlickoraTheme.bgSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return Consumer<WatchlistProvider>(
+          builder: (context, provider, _) {
+            final stacks = provider.stacks;
+            return Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: const [
+                          Icon(Icons.collections_bookmark_rounded, color: FlickoraTheme.accentRed, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Add to Cinema Stack',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                      TextButton.icon(
+                        icon: const Icon(Icons.add, size: 16, color: FlickoraTheme.accentRed),
+                        label: const Text('New Stack', style: TextStyle(color: FlickoraTheme.accentRed, fontSize: 12)),
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          _showCreateStackQuickDialog(context);
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  if (stacks.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Center(
+                        child: Text('No stacks created yet', style: TextStyle(color: FlickoraTheme.textMuted)),
+                      ),
+                    )
+                  else
+                    Flexible(
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: stacks.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemBuilder: (context, i) {
+                          final stack = stacks[i];
+                          final isIn = provider.isItemInStack(stack.id, _currentMedia.id);
+                          return ListTile(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                            tileColor: FlickoraTheme.bgCard,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(color: isIn ? FlickoraTheme.primaryRed : Colors.white10),
+                            ),
+                            leading: Text(stack.emoji, style: const TextStyle(fontSize: 22)),
+                            title: Text(
+                              stack.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: isIn ? FontWeight.bold : FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                            subtitle: Text(
+                              '${stack.items.length} titles',
+                              style: const TextStyle(fontSize: 11, color: FlickoraTheme.textMuted),
+                            ),
+                            trailing: Icon(
+                              isIn ? Icons.check_circle_rounded : Icons.add_circle_outline_rounded,
+                              color: isIn ? FlickoraTheme.accentRed : Colors.white54,
+                            ),
+                            onTap: () async {
+                              await provider.toggleItemInStack(stack.id, _currentMedia);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(isIn
+                                        ? 'Removed from ${stack.title}'
+                                        : 'Added ${_currentMedia.title} to ${stack.title}!'),
+                                    duration: const Duration(seconds: 1),
+                                  ),
+                                );
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showCreateStackQuickDialog(BuildContext context) {
+    final titleController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: FlickoraTheme.bgSurface,
+        title: const Text('Create New Stack', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: TextField(
+          controller: titleController,
+          autofocus: true,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            hintText: 'e.g. Nolan Epics, Dark Neo-Noir...',
+            hintStyle: TextStyle(color: Colors.white38),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: FlickoraTheme.primaryRed),
+            onPressed: () async {
+              final t = titleController.text.trim();
+              if (t.isNotEmpty) {
+                await context.read<WatchlistProvider>().createStack(
+                      title: t,
+                      description: 'Custom curated collection',
+                      emoji: '🎬',
+                    );
+                if (ctx.mounted) Navigator.pop(ctx);
+              }
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSoundtrackSection() {
+    final composer = _getAssociatedComposer(_currentMedia.title);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: FlickoraTheme.bgCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.music_note_rounded, size: 20, color: Color(0xFF1DB954)),
+                  SizedBox(width: 8),
+                  Text(
+                    'Original Motion Picture Soundtrack',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
+                  ),
+                ],
+              ),
+              const Icon(Icons.equalizer_rounded, size: 18, color: Color(0xFF1DB954)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Composed by $composer',
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Official symphonic orchestral score featuring iconic melodic suites and leitmotifs.',
+            style: TextStyle(fontSize: 11.5, color: FlickoraTheme.textSecondary, height: 1.3),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.music_note, size: 16, color: Color(0xFF1DB954)),
+                  label: const Text('Spotify Score', style: TextStyle(color: Colors.white, fontSize: 11.5)),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF1DB954)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: () async {
+                    final query = Uri.encodeComponent('${_currentMedia.title} Original Soundtrack $composer');
+                    final uri = Uri.parse('https://open.spotify.com/search/$query');
+                    try {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    } catch (_) {}
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.play_circle_fill, size: 16, color: FlickoraTheme.accentRed),
+                  label: const Text('YouTube Music', style: TextStyle(color: Colors.white, fontSize: 11.5)),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.white24),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: () async {
+                    final query = Uri.encodeComponent('${_currentMedia.title} Soundtrack OST $composer');
+                    final uri = Uri.parse('https://music.youtube.com/search?q=$query');
+                    try {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    } catch (_) {}
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getAssociatedComposer(String title) {
+    final t = title.toLowerCase();
+    if (t.contains('dune') || t.contains('oppenheimer')) return 'Ludwig Göransson';
+    if (t.contains('interstellar') || t.contains('inception') || t.contains('dark knight') || t.contains('gladiator')) return 'Hans Zimmer';
+    if (t.contains('star wars') || t.contains('jurassic') || t.contains('schindler')) return 'John Williams';
+    if (t.contains('social network') || t.contains('dragon tattoo')) return 'Trent Reznor & Atticus Ross';
+    if (t.contains('lord of the rings') || t.contains('hobbit')) return 'Howard Shore';
+    if (t.contains('good, the bad') || t.contains('cinema paradiso')) return 'Ennio Morricone';
+    return 'Hollywood Symphony Orchestra & Hans Zimmer';
+  }
+
+  Widget _buildParentalAdvisorySection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: FlickoraTheme.bgCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.verified_user_outlined, size: 18, color: Colors.amber),
+                  SizedBox(width: 8),
+                  Text(
+                    'Content & Age Advisory',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.amber.withOpacity(0.5)),
+                ),
+                child: Text(
+                  _currentMedia.voteAverage >= 8.0 ? 'PG-13 / TV-14' : 'PG / TV-PG',
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.amber),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          _buildAdvisoryMeter('Violence & Intense Action', 0.65, Colors.orangeAccent),
+          const SizedBox(height: 8),
+          _buildAdvisoryMeter('Suspense, Fear & Thrills', 0.75, Colors.redAccent),
+          const SizedBox(height: 8),
+          _buildAdvisoryMeter('Profanity & Coarse Language', 0.40, Colors.amberAccent),
+          const SizedBox(height: 8),
+          _buildAdvisoryMeter('Romance & Sensuality', 0.30, Colors.pinkAccent),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdvisoryMeter(String label, double level, Color color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: const TextStyle(fontSize: 11, color: FlickoraTheme.textSecondary)),
+            Text(
+              level >= 0.7 ? 'Moderate-High' : (level >= 0.4 ? 'Moderate' : 'Mild'),
+              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: level,
+            minHeight: 4,
+            backgroundColor: Colors.white12,
+            valueColor: AlwaysStoppedAnimation<Color>(color),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final watchlistProvider = context.watch<WatchlistProvider>();
@@ -669,6 +1001,21 @@ class _DetailScreenState extends State<DetailScreen> {
                           ),
                           tooltip: 'Add to Watchlist',
                           onPressed: () => watchlistProvider.toggleWatchlist(_currentMedia),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+
+                      // Add to Cinema Stack Button
+                      Container(
+                        decoration: BoxDecoration(
+                          color: FlickoraTheme.bgSurface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white12),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.collections_bookmark_outlined, color: Colors.white70),
+                          tooltip: 'Add to Cinema Stack',
+                          onPressed: () => _showAddToStackSheet(context),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -1009,6 +1356,14 @@ class _DetailScreenState extends State<DetailScreen> {
 
                   // Behind-the-Scenes Trivia & Facts
                   _buildTriviaSection(),
+                  const SizedBox(height: 20),
+
+                  // Original Soundtrack & Score Vault
+                  _buildSoundtrackSection(),
+                  const SizedBox(height: 20),
+
+                  // Parental Content & Age Advisory
+                  _buildParentalAdvisorySection(),
                   const SizedBox(height: 24),
 
                   // Similar Recommendations

@@ -3,6 +3,7 @@ import 'package:flickora/models/media_item.dart';
 import 'package:flickora/models/episode.dart';
 import 'package:flickora/models/actor.dart';
 import 'package:flickora/models/diary_entry.dart';
+import 'package:flickora/models/cinema_stack.dart';
 import 'package:flickora/core/constants.dart';
 
 void main() {
@@ -80,6 +81,42 @@ void main() {
     expect(entry.rewatch, isTrue);
     expect(entry.reviewText, contains('masterpiece'));
     expect(entry.toJson()['rating'], 4.5);
+  });
+
+  test('CinemaStack model serializes and clones correctly', () {
+    final stack = CinemaStack(
+      id: 'stack_test',
+      title: 'Neon Cyberpunk',
+      description: 'Futuristic nightscapes and synths',
+      emoji: '🌃',
+      isEditorial: true,
+      items: [
+        MediaItem(
+          id: 999,
+          title: 'Blade Runner 2049',
+          overview: 'Denis Villeneuve masterpiece',
+          posterPath: '/path.jpg',
+          backdropPath: '/back.jpg',
+          voteAverage: 8.5,
+          voteCount: 15000,
+          releaseDate: '2017-10-06',
+          genreIds: [878],
+          mediaType: 'movie',
+        ),
+      ],
+    );
+
+    final json = stack.toJson();
+    final restored = CinemaStack.fromJson(json);
+
+    expect(restored.id, 'stack_test');
+    expect(restored.title, 'Neon Cyberpunk');
+    expect(restored.items.length, 1);
+    expect(restored.items.first.title, 'Blade Runner 2049');
+
+    final updated = stack.copyWith(title: 'Cyberpunk Classics');
+    expect(updated.title, 'Cyberpunk Classics');
+    expect(updated.items.length, 1);
   });
 
   test('FlickoraConstants has freeCinemaMedia and fallbackMedia', () {

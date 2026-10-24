@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/media_item.dart';
 import '../models/diary_entry.dart';
+import '../models/cinema_stack.dart';
+import '../core/constants.dart';
 
 class ContinueWatchingItem {
   final MediaItem media;
@@ -39,6 +41,7 @@ class StorageService {
   static const String _apiKeyKey = 'flickora_custom_api_key';
   static const String _qualityKey = 'flickora_stream_quality';
   static const String _diaryKey = 'flickora_cinema_diary';
+  static const String _stacksKey = 'flickora_cinema_stacks';
 
   late SharedPreferences _prefs;
 
@@ -101,6 +104,80 @@ class StorageService {
     final list = getDiary();
     list.removeWhere((e) => e.id == id);
     await saveDiary(list);
+  }
+
+  // --- Cinema Stacks (Custom Curated Collections) ---
+  List<CinemaStack> getStacks() {
+    final raw = _prefs.getStringList(_stacksKey);
+    if (raw == null || raw.isEmpty) {
+      return _generateDefaultEditorialStacks();
+    }
+    try {
+      return raw.map((item) => CinemaStack.fromJson(jsonDecode(item))).toList();
+    } catch (_) {
+      return _generateDefaultEditorialStacks();
+    }
+  }
+
+  Future<void> saveStacks(List<CinemaStack> stacks) async {
+    final raw = stacks.map((s) => jsonEncode(s.toJson())).toList();
+    await _prefs.setStringList(_stacksKey, raw);
+  }
+
+  Future<void> addStack(CinemaStack stack) async {
+    final list = getStacks();
+    list.insert(0, stack);
+    await saveStacks(list);
+  }
+
+  Future<void> deleteStack(String stackId) async {
+    final list = getStacks();
+    list.removeWhere((s) => s.id == stackId && !s.isEditorial);
+    await saveStacks(list);
+  }
+
+  List<CinemaStack> _generateDefaultEditorialStacks() {
+    final allMedia = FlickoraConstants.fallbackMedia.map((json) => MediaItem.fromJson(json)).toList();
+    final freeCinema = FlickoraConstants.freeCinemaMedia.map((json) => MediaItem.fromJson(json)).toList();
+
+    return [
+      CinemaStack(
+        id: 'editorial_sci_fi',
+        title: 'Hard Sci-Fi & Mindbenders',
+        description: 'Atmospheric cosmic odysseys, dystopian realities, and intricate quantum puzzles.',
+        emoji: '🌌',
+        curator: 'Flickora Editorial',
+        isEditorial: true,
+        items: allMedia.where((m) => m.genreIds.contains(878) || m.id == 157336 || m.id == 27205).toList(),
+      ),
+      CinemaStack(
+        id: 'editorial_a24',
+        title: 'Modern Visionary Essentials',
+        description: 'Bold filmmaking, unforgettable character depth, and boundary-pushing cinema.',
+        emoji: '🏆',
+        curator: 'Flickora Editorial',
+        isEditorial: true,
+        items: allMedia.where((m) => m.voteAverage >= 8.0).toList(),
+      ),
+      CinemaStack(
+        id: 'editorial_free_vault',
+        title: 'The Open Vault (Free Full Cinema)',
+        description: 'Complete full-length legendary movies streamable directly in-app with zero ads.',
+        emoji: '🎞️',
+        curator: 'Flickora Archives',
+        isEditorial: true,
+        items: freeCinema,
+      ),
+      CinemaStack(
+        id: 'editorial_comfort',
+        title: 'Late Night Comfort Cinema',
+        description: 'Warm lighting, nostalgic atmospheres, and comforting episodic storytelling.',
+        emoji: '🍿',
+        curator: 'Flickora Editorial',
+        isEditorial: true,
+        items: allMedia.where((m) => m.mediaType == 'tv' || m.genreIds.contains(16) || m.genreIds.contains(35)).toList(),
+      ),
+    ];
   }
 
   // --- Search History ---

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
@@ -42,6 +43,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   Duration _currentPosition = Duration.zero;
   Duration _totalDuration = Duration.zero;
+
+  Timer? _sleepTimer;
+  int? _sleepTimerMinutes;
 
   @override
   void initState() {
@@ -124,12 +128,122 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   @override
   void dispose() {
+    _sleepTimer?.cancel();
     _nativePlayerController?.removeListener(_nativeListener);
     _nativePlayerController?.dispose();
     _youtubePlayerController?.removeListener(_youtubeListener);
     _youtubePlayerController?.dispose();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     super.dispose();
+  }
+
+  void _showSleepTimerDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: FlickoraTheme.bgSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.bedtime_rounded, color: Colors.amber, size: 22),
+                  SizedBox(width: 10),
+                  Text(
+                    'Cinema Sleep Timer',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _sleepTimerMinutes != null
+                    ? 'Timer actively set for $_sleepTimerMinutes minutes'
+                    : 'Automatically pause playback when you drift off to sleep',
+                style: const TextStyle(fontSize: 12, color: FlickoraTheme.textMuted),
+              ),
+              const SizedBox(height: 16),
+              ...[15, 30, 45, 60].map((mins) {
+                final isCurrent = _sleepTimerMinutes == mins;
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    isCurrent ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                    color: isCurrent ? FlickoraTheme.primaryRed : Colors.white54,
+                  ),
+                  title: Text(
+                    '$mins Minutes',
+                    style: TextStyle(
+                      color: isCurrent ? Colors.white : Colors.white70,
+                      fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  onTap: () {
+                    _setSleepTimer(mins);
+                    Navigator.pop(ctx);
+                  },
+                );
+              }),
+              if (_sleepTimerMinutes != null)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.cancel_rounded, color: Colors.redAccent),
+                  title: const Text('Cancel Sleep Timer', style: TextStyle(color: Colors.redAccent)),
+                  onTap: () {
+                    _cancelSleepTimer();
+                    Navigator.pop(ctx);
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _setSleepTimer(int minutes) {
+    _sleepTimer?.cancel();
+    setState(() => _sleepTimerMinutes = minutes);
+    _sleepTimer = Timer(Duration(minutes: minutes), () {
+      if (mounted) {
+        if (_isUsingNativeStream && _nativePlayerController != null) {
+          _nativePlayerController!.pause();
+        } else if (_youtubePlayerController != null) {
+          _youtubePlayerController!.pause();
+        }
+        setState(() {
+          _isPlaying = false;
+          _sleepTimerMinutes = null;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cinema Sleep Timer elapsed. Playback paused.'),
+            backgroundColor: FlickoraTheme.bgCardHighlight,
+          ),
+        );
+      }
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Sleep Timer set for $minutes minutes'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _cancelSleepTimer() {
+    _sleepTimer?.cancel();
+    _sleepTimer = null;
+    setState(() => _sleepTimerMinutes = null);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Sleep Timer cancelled'), duration: Duration(seconds: 1)),
+    );
   }
 
   void _togglePlayPause() {
@@ -435,6 +549,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            _sleepTimerMinutes != null ? Icons.bedtime_rounded : Icons.bedtime_outlined,
+                            color: _sleepTimerMinutes != null ? Colors.amber : Colors.white,
+                          ),
+                          tooltip: 'Sleep Timer',
+                          onPressed: _showSleepTimerDialog,
                         ),
                         IconButton(
                           icon: const Icon(Icons.link_rounded, color: Colors.white),
