@@ -99,6 +99,10 @@ class WatchlistProvider with ChangeNotifier {
     return _diary.any((entry) => entry.media.id == mediaId);
   }
 
+  bool isWatched(int mediaId) {
+    return isLogged(mediaId);
+  }
+
   DiaryEntry? getEntry(int mediaId) {
     try {
       return _diary.firstWhere((entry) => entry.media.id == mediaId);
