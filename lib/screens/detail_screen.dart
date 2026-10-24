@@ -849,6 +849,40 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
+  Widget _buildFinancialsSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: FlickoraTheme.bgCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.monetization_on_outlined, size: 18, color: Colors.greenAccent),
+              SizedBox(width: 8),
+              Text(
+                'Box Office & Production Financials',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          _buildSpecRow('Estimated Budget', '\$165,000,000 USD'),
+          const Divider(color: Colors.white10, height: 16),
+          _buildSpecRow('Domestic Box Office', '\$188,020,017 USD'),
+          const Divider(color: Colors.white10, height: 16),
+          _buildSpecRow('Worldwide Gross', '\$730,868,750 USD'),
+          const Divider(color: Colors.white10, height: 16),
+          _buildSpecRow('Box Office Profit Multiple', '4.4x (Certified Blockbuster)'),
+        ],
+      ),
+    );
+  }
+
   Widget _buildColorPaletteSection() {
     final colors = [
       const Color(0xFF1E2836),
@@ -1646,6 +1680,10 @@ class _DetailScreenState extends State<DetailScreen> {
 
                   // Camera & Technical Master Specs
                   _buildTechSpecsSection(),
+                  const SizedBox(height: 20),
+
+                  // Box Office & Production Financials
+                  _buildFinancialsSection(),
                   const SizedBox(height: 20),
 
                   // Cinematography Color Palette

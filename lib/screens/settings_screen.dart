@@ -14,6 +14,12 @@ import 'trivia_screen.dart';
 import 'costar_connection_screen.dart';
 import 'palette_aesthetic_screen.dart';
 import 'notifications_screen.dart';
+import 'festivals_screen.dart';
+import 'cinematography_lab_screen.dart';
+import 'mystery_screening_screen.dart';
+import 'quotes_vault_screen.dart';
+import 'script_vault_screen.dart';
+import 'achievements_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -202,7 +208,7 @@ class SettingsScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 2, color: Colors.white),
                 ),
               ),
-              const Text('Version 1.5.0 (The Ultimate Cinephile Suite)', style: TextStyle(fontSize: 11, color: FlickoraTheme.textMuted)),
+              const Text('Version 1.6.0 (The Criterion & Festival Edition)', style: TextStyle(fontSize: 11, color: FlickoraTheme.textMuted)),
               const SizedBox(height: 14),
               const Text(
                 'Flickora is a next-generation streaming & media exploration app built with Flutter and Dart. Designed with a strict zero-ad policy, delivering ultra-fluid animations, 4K metadata discovery, and personalized watchlists.\n\nBuilt for University Project & Portfolio Showcase.',
@@ -416,6 +422,72 @@ class SettingsScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const AwardsScreen()),
+              );
+            },
+          ),
+          _buildTile(
+            icon: Icons.festival_rounded,
+            title: 'Global Film Festival Circuit',
+            subtitle: 'Cannes Palme d\'Or, Venice Golden Lion & Berlin Bear',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FestivalsScreen()),
+              );
+            },
+          ),
+          _buildTile(
+            icon: Icons.camera_rounded,
+            title: 'Cinematography Framing Lab',
+            subtitle: 'Dolly Zoom, Unbroken Oners & Composition breakdown',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CinematographyLabScreen()),
+              );
+            },
+          ),
+          _buildTile(
+            icon: Icons.theater_comedy_rounded,
+            title: 'Blind Mystery Screening',
+            subtitle: 'Concealed titles without poster bias',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MysteryScreeningScreen()),
+              );
+            },
+          ),
+          _buildTile(
+            icon: Icons.format_quote_rounded,
+            title: 'Iconic Cinema Quotes Vault',
+            subtitle: 'Famous dialogue & shareable quote cards',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const QuotesVaultScreen()),
+              );
+            },
+          ),
+          _buildTile(
+            icon: Icons.description_rounded,
+            title: 'Screenplay & Script Vault',
+            subtitle: 'Original production drafts & directorial annotations',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ScriptVaultScreen()),
+              );
+            },
+          ),
+          _buildTile(
+            icon: Icons.emoji_events_rounded,
+            title: 'Cinephile Trophies & Badges',
+            subtitle: '25+ Unlockable achievements and XP rewards',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AchievementsScreen()),
               );
             },
           ),

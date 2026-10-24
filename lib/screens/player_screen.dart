@@ -60,6 +60,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   String? _currentSubtitleText;
   bool _dialogBoostEnabled = false;
   int _currentSourceIndex = 1;
+  String _selectedAudioDub = 'Original Master (Dolby Atmos)';
 
   @override
   void initState() {
@@ -528,6 +529,64 @@ class _PlayerScreenState extends State<PlayerScreen> {
     );
   }
 
+  void _showAudioDubDialog() {
+    final dubs = [
+      {'name': 'Original Master Audio', 'format': 'Dolby Atmos / TrueHD 7.1'},
+      {'name': 'English Dub', 'format': 'Dolby Digital 5.1 (384 kbps)'},
+      {'name': 'Spanish (Latinoamérica)', 'format': 'Stereo 2.0 (192 kbps)'},
+      {'name': 'French (V.F.)', 'format': 'Stereo 2.0 (192 kbps)'},
+      {'name': 'Japanese Audio', 'format': 'DTS-HD Master 5.1'},
+      {'name': 'German Dub', 'format': 'Dolby Digital 5.1'},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: FlickoraTheme.bgSurface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: const [
+                  Icon(Icons.audiotrack_rounded, color: Colors.greenAccent, size: 22),
+                  SizedBox(width: 10),
+                  Text('Audio Dub & Spoken Language', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                ],
+              ),
+              const SizedBox(height: 6),
+              const Text('Select original voice track or localized foreign dubbing', style: TextStyle(fontSize: 12, color: FlickoraTheme.textMuted)),
+              const SizedBox(height: 14),
+              ...dubs.map((d) {
+                final isCurrent = _selectedAudioDub.startsWith(d['name']!.split(' ').first);
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(isCurrent ? Icons.check_circle_rounded : Icons.radio_button_unchecked, color: isCurrent ? Colors.greenAccent : Colors.white54),
+                  title: Text(d['name']!, style: TextStyle(fontSize: 13, color: isCurrent ? Colors.white : Colors.white70, fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal)),
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(4)),
+                    child: Text(d['format']!, style: const TextStyle(fontSize: 9.5, color: Colors.white70)),
+                  ),
+                  onTap: () {
+                    setState(() => _selectedAudioDub = d['name']!);
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Audio Dub Switched: ${d['name']}'), duration: const Duration(seconds: 1)),
+                    );
+                  },
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _togglePlayPause() {
     if (_isUsingNativeStream && _nativePlayerController != null) {
       if (_nativePlayerController!.value.isPlaying) {
@@ -946,6 +1005,46 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // Binge Next Episode Banner
+                        if (_totalDuration.inSeconds > 60 && (_totalDuration - _currentPosition).inSeconds <= 25)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: FlickoraTheme.bgSurface,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: FlickoraTheme.accentRed),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.skip_next_rounded, color: FlickoraTheme.accentRed, size: 18),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Next Episode in ${(_totalDuration - _currentPosition).inSeconds}s...',
+                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    _seekRelative(30);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Starting Next Episode...'), duration: Duration(seconds: 1)),
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(color: FlickoraTheme.primaryRed, borderRadius: BorderRadius.circular(6)),
+                                    child: const Text('Play Next Now', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
                         // Progress Slider
                         SliderTheme(
                           data: SliderTheme.of(context).copyWith(
@@ -1084,6 +1183,34 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: const Icon(Icons.bookmark_add_outlined, color: Colors.amber, size: 14),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+
+                                // Audio Dub Language Switcher
+                                GestureDetector(
+                                  onTap: _showAudioDubDialog,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white12,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Icon(Icons.audiotrack_rounded, color: Colors.greenAccent, size: 14),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+
+                                // Skip Intro Button (+85s)
+                                GestureDetector(
+                                  onTap: () => _seekRelative(85),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white12,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Text('Skip Intro', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.amberAccent)),
                                   ),
                                 ),
                                 const SizedBox(width: 8),

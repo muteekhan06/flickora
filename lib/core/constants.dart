@@ -1,7 +1,7 @@
 class FlickoraConstants {
   static const String appName = 'Flickora';
   static const String appTagline = 'Stream & Discover Endless Entertainment';
-  static const String appVersion = '1.5.0';
+  static const String appVersion = '1.6.0';
 
   // TMDB API Configuration
   static const String tmdbBaseUrl = 'https://api.themoviedb.org/3';

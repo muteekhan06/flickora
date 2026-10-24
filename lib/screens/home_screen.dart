@@ -25,6 +25,12 @@ import 'trivia_screen.dart';
 import 'costar_connection_screen.dart';
 import 'palette_aesthetic_screen.dart';
 import 'notifications_screen.dart';
+import 'festivals_screen.dart';
+import 'cinematography_lab_screen.dart';
+import 'mystery_screening_screen.dart';
+import 'quotes_vault_screen.dart';
+import 'script_vault_screen.dart';
+import 'achievements_screen.dart';
 import '../services/storage_service.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -406,6 +412,188 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ],
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // Discovery Row 7: Film Festivals Circuit & Cinematography Framing Lab
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Festival Circuit',
+                        subtitle: 'Cannes, Venice & Berlin',
+                        badge: 'Palme d\'Or',
+                        icon: Icons.festival_rounded,
+                        gradientColors: const [Color(0xFF261D0C), Color(0xFF130E06)],
+                        borderColor: Colors.amber.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const FestivalsScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Framing Lab',
+                        subtitle: 'Dolly Zoom, Oners & Angles',
+                        badge: 'Composition',
+                        icon: Icons.camera_rounded,
+                        gradientColors: const [Color(0xFF0F262E), Color(0xFF071217)],
+                        borderColor: Colors.cyanAccent.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const CinematographyLabScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // Discovery Row 8: Blind Mystery Screening & Quotes Vault
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Blind Screening',
+                        subtitle: 'Don\'t judge by the poster',
+                        badge: 'Mystery',
+                        icon: Icons.theater_comedy_rounded,
+                        gradientColors: const [Color(0xFF241530), Color(0xFF110A17)],
+                        borderColor: Colors.purpleAccent.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const MysteryScreeningScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Quotes Vault',
+                        subtitle: 'Legendary lines & quotes',
+                        badge: 'Iconic Lines',
+                        icon: Icons.format_quote_rounded,
+                        gradientColors: const [Color(0xFF332014), Color(0xFF19100A)],
+                        borderColor: Colors.orangeAccent.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const QuotesVaultScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // Discovery Row 9: Screenplay Script Vault & Cinephile Trophies
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Script Vault',
+                        subtitle: 'Read production drafts',
+                        badge: 'Screenplay',
+                        icon: Icons.description_rounded,
+                        gradientColors: const [Color(0xFF1E2433), Color(0xFF0E121A)],
+                        borderColor: Colors.blueAccent.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const ScriptVaultScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildFeatureActionCard(
+                        context: context,
+                        title: 'Hall of Trophies',
+                        subtitle: '25+ Badges & XP milestones',
+                        badge: 'Achievements',
+                        icon: Icons.emoji_events_rounded,
+                        gradientColors: const [Color(0xFF2E260D), Color(0xFF171306)],
+                        borderColor: Colors.amberAccent.withOpacity(0.4),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const AchievementsScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 14),
+
+              // On This Day in Cinema History Widget
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: FlickoraTheme.bgCard,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withOpacity(0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.calendar_today_rounded, color: Colors.amberAccent, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              'On This Day in Cinema History',
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
+                            SizedBox(height: 3),
+                            Text(
+                              'In 1994, Frank Darabont\'s "The Shawshank Redemption" completed its theatrical run, embarking on its journey to become IMDb\'s #1 film of all time.',
+                              style: TextStyle(fontSize: 11, color: FlickoraTheme.textMuted, height: 1.3),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 

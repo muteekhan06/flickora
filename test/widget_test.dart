@@ -10,6 +10,10 @@ import 'package:flickora/models/trivia_question.dart';
 import 'package:flickora/models/cinematic_universe.dart';
 import 'package:flickora/models/director_profile.dart';
 import 'package:flickora/models/release_reminder.dart';
+import 'package:flickora/models/festival_award.dart';
+import 'package:flickora/models/cinema_quote.dart';
+import 'package:flickora/models/cinematography_technique.dart';
+import 'package:flickora/models/cinephile_achievement.dart';
 import 'package:flickora/core/constants.dart';
 
 void main() {
@@ -129,7 +133,7 @@ void main() {
     expect(FlickoraConstants.freeCinemaMedia.isNotEmpty, isTrue);
     expect(FlickoraConstants.fallbackMedia.isNotEmpty, isTrue);
     expect(FlickoraConstants.appName, 'Flickora');
-    expect(FlickoraConstants.appVersion, '1.5.0');
+    expect(FlickoraConstants.appVersion, '1.6.0');
   });
 
   test('SubtitleCue and SubtitleTrack cue matching works accurately', () {
@@ -211,5 +215,44 @@ void main() {
     final restored = ReleaseReminder.fromJson(json);
     expect(restored.mediaId, 9999);
     expect(restored.title, 'Avatar 3');
+  });
+
+  test('FestivalAward vault has Cannes, Venice, and Berlin winners', () {
+    final awards = FestivalAward.getFestivalVault();
+    expect(awards.length, greaterThanOrEqualTo(4));
+    expect(awards.any((a) => a.festivalName.contains('Cannes')), isTrue);
+    expect(awards.any((a) => a.awardName.contains('Palme d\'Or')), isTrue);
+  });
+
+  test('CinemaQuote library contains verified famous lines', () {
+    final quotes = CinemaQuote.getIconicQuotes();
+    expect(quotes.length, greaterThanOrEqualTo(5));
+    expect(quotes.any((q) => q.movieTitle == 'Interstellar'), isTrue);
+    expect(quotes.any((q) => q.quote.contains('gentle into that good night')), isTrue);
+  });
+
+  test('CinematographyTechnique contains Dolly Zoom and Long Take', () {
+    final techs = CinematographyTechnique.getMasterTechniques();
+    expect(techs.length, greaterThanOrEqualTo(4));
+    expect(techs.any((t) => t.id == 'dolly_zoom'), isTrue);
+    expect(techs.any((t) => t.id == 'long_take'), isTrue);
+  });
+
+  test('CinephileAchievement serializes correctly', () {
+    final ach = CinephileAchievement(
+      id: 'test_ach',
+      title: 'First Review',
+      description: 'Logged your first review',
+      icon: '🏆',
+      tier: 'Gold',
+      xpReward: 100,
+      isUnlocked: true,
+    );
+
+    final json = ach.toJson();
+    final restored = CinephileAchievement.fromJson(json);
+    expect(restored.id, 'test_ach');
+    expect(restored.xpReward, 100);
+    expect(restored.isUnlocked, isTrue);
   });
 }

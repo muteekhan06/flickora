@@ -55,42 +55,38 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: "build/app/outputs/flutter-apk/app-release.apk"
-          tag: "v1.5.0"
-          name: "Flickora v1.5.0 (The Ultimate Cinephile Suite — Sound Lab, Universes, Directors & Trivia)"
+          tag: "v1.6.0"
+          name: "Flickora v1.6.0 (The Criterion & Festival Edition — Festivals, Cinematography Lab, Binge & Quotes)"
           body: |
-            ### 🚀 Flickora v1.5.0 — The Ultimate Cinephile Suite
+            ### 🏛️ Flickora v1.6.0 — The Criterion & Festival Edition
 
-            Flickora reaches its ultimate evolution: combining theater-grade acoustic mastering, cinematic franchise universes, auteur retrospectives, interactive trivia, and aesthetic cinematography exploration!
+            Flickora's crowning update — bringing the prestigious pedigree of world film festivals, masterclass cinematography analysis, blind mystery cinema, and smart TV binge-watching directly into your pocket!
 
-            #### 🌟 What's New in v1.5.0:
-            - **🎚️ Cinema Sound Lab & Audio Profiles**:
-              - In-player EQ acoustic DSP profiles: *Dialogue Clarity Boost* (boosts 1–3 kHz voice bands for crisp speech over loud explosions), *Midnight Compression* (night-mode audio), *IMAX Deep Bass* (low-end rumble), *Acoustic Score Mode* (symphonic separation), and *Studio Neutral*.
-            - **🪐 Cinematic Universes & Franchise Chronology Hub (`FranchisesScreen`)**:
-              - Dedicated universe timelines for the Marvel Cinematic Universe (MCU), Star Wars (Skywalker Saga), and Dune (Arrakis Chronicles).
-              - **Dual Order Viewing Modes**: Toggle between *Theatrical Release Date Order* and *In-Universe Chronological Storyline Order*.
-              - Live franchise completion progress meter integrated with your watched log.
-            - **🎬 Director & Auteur Spotlight Retrospectives (`DirectorsScreen`)**:
-              - Dedicated auteur hubs for Christopher Nolan, Denis Villeneuve, Quentin Tarantino, and Hayao Miyazaki.
-              - Directorial hallmarks checklist, philosophical quotes, and complete ranked filmographies with 1-tap playback.
-            - **🎨 Cinematography Color Palette & Aesthetic Search (`PaletteAestheticScreen`)**:
-              - Extracted 5-color aesthetic swatches for films with exact hex codes.
-              - Browse cinema by visual aesthetic vibe: *Neon Cyberpunk*, *Pastel Whimsy & Symmetrical Dreams*, *Golden Sunlit Dust*, and *Cold Steel & Desaturated Monolith*.
-            - **⏱️ Timecode Scene Bookmarks & Personal Film Annotations (`SceneBookmark`)**:
-              - Drop precise time-stamped pins during active video playback with custom scene quotes and notes.
-              - Review your bookmarked scenes on the movie details screen and jump directly to that exact second in the player!
-            - **🧠 Interactive Cinephile IQ Challenge (`TriviaScreen`)**:
-              - Daily interactive 5-question cinema quiz with instant explanations and director facts.
-              - Earn Cinephile XP (+50 XP per question) and level up ranks from *Cinephile Novice* to *Cinema Grandmaster* with streak tracking.
-            - **🥓 Six Degrees of Co-Stars (Cast Connection Solver `CoStarConnectionScreen`)**:
-              - Interactive Hollywood connection engine discovering the shortest chain of co-star movies linking actors together.
-            - **🔔 Release Radar Alerts & Notification Center (`NotificationsScreen`)**:
-              - One-tap reminder bell on upcoming movies with persistent alert tracking and live film festival broadcast feeds.
-            - **💬 Multilingual Subtitles/CC & Ambient Glow Halo**:
-              - Live multi-language closed captions + diffused real-time ambient lighting behind playback.
-            - **👥 Synchronized Watch Party Lounge & Double Feature Generator**:
-              - Live room codes (`FLK-xxx`), floating emoji reactions, and 2-film marathon pairings.
-            - **📊 Letterboxd CSV Data Portability & Technical Specs Sheet**:
-              - Official Letterboxd watchlist/diary export + Camera systems, aspect ratio, and audio format master sheets.
+            #### 🌟 What's New in v1.6.0 (The Criterion & Festival Edition):
+            - **🎪 Global Film Festival Circuit & Trophy Tracker (`FestivalsScreen`)**:
+              - Dedicated hubs for Cannes (*Palme d'Or*), Venice (*Golden Lion*), Berlin (*Golden Bear*), and Sundance.
+              - Filter by festival, year, jury president citations, and enjoy 1-tap playback of trophy-winning masterworks.
+            - **💰 Box Office Financials & Production ROI Matrix**:
+              - Complete economic profile on movie details: Production Budget, Domestic Gross, Worldwide Total, and Profit Multipliers (*Certified Blockbuster, Indie Sleeper Smash*).
+            - **📐 Cinematography Framing & Visual Composition Lab (`CinematographyLabScreen`)**:
+              - Interactive masterclass in legendary camera techniques: *The Dolly Zoom (Vertigo Effect)*, *The Unbroken Long Take (Oner)*, *Center-Weighted Symmetry*, and *The Dutch Angle*.
+              - Optical principles, directorial examples, and 1-tap scene study playback.
+            - **🎭 "Blind Mystery Screening" Mode (`MysteryScreeningScreen`)**:
+              - Overcome choice paralysis and cognitive bias: movies presented with only an enigmatic poetic hook, runtime, and genre tags.
+              - 1-tap dramatic curtain-reveal animation and instant playback!
+            - **🗣️ Iconic Cinema Quotes Vault (`QuotesVaultScreen`)**:
+              - Searchable catalog of the greatest lines in movie history with actor, character, context, and 1-tap copy/share quote cards.
+            - **📑 Screenplay & Production Script Vault (`ScriptVaultScreen`)**:
+              - Side-by-side reading of original formatted screenplay drafts and director notes for *Interstellar*, *The Dark Knight*, and *Pulp Fiction*.
+            - **🏅 Cinephile Trophy & Achievement System (`AchievementsScreen`)**:
+              - 25+ unlockable achievements (*Curtain Raiser, Master Archivist, Acoustic Audiophile, Cinephile Scholar, Palme d'Or Connoisseur*) with XP rewards.
+            - **⏭️ Smart "Binge Next Episode" Auto-Advance & Skip Intro**:
+              - Automated countdown banner for TV series episodes + in-player *Skip Intro (+85s)* quick action button.
+            - **🌐 Multi-Language Audio Dub Switcher**:
+              - In-player language dub selector: *Original Master Audio (Dolby Atmos / DTS-HD)*, *English Dub*, *Spanish Dub*, *French Dub*, *Japanese Audio*, and *German Dub*.
+            - **📅 "On This Day in Cinema History" Daily Archive**:
+              - Daily landmark cinema history moments featured directly on the home screen.
+            - **🎚️ Cinema Sound Lab & Ambient Halo Glow**: Equalizer DSP presets (Dialogue Clarity Boost, Midnight Compression, IMAX Deep Bass) + real-time halo lighting.
             - **🚫 100% Ad-Free**: Strictly zero ads, zero subscriptions, zero tracking.
 
             📲 **Download directly to your Android device:** Click `app-release.apk` below!
