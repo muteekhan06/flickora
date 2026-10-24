@@ -1,0 +1,238 @@
+class FlickoraConstants {
+  static const String appName = 'Flickora';
+  static const String appTagline = 'Stream & Discover Endless Entertainment';
+  static const String appVersion = '1.0.0';
+
+  // TMDB API Configuration
+  // Users can enter their own API key in Settings -> TMDB API Key.
+  // A public demo key is provided as fallback for seamless out-of-the-box exploration.
+  static const String tmdbBaseUrl = 'https://api.themoviedb.org/3';
+  static const String defaultTmdbApiKey = '4e44d9029b1270a757cddc766a1bcb63'; // Standard public demo discovery key
+  static const String imageBaseW500 = 'https://image.tmdb.org/t/p/w500';
+  static const String imageBaseOriginal = 'https://image.tmdb.org/t/p/original';
+
+  static String getPosterUrl(String? path) {
+    if (path == null || path.isEmpty) {
+      return 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&auto=format&fit=crop&q=60';
+    }
+    if (path.startsWith('http')) return path;
+    return '$imageBaseW500$path';
+  }
+
+  static String getBackdropUrl(String? path) {
+    if (path == null || path.isEmpty) {
+      return 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=1200&auto=format&fit=crop&q=80';
+    }
+    if (path.startsWith('http')) return path;
+    return '$imageBaseOriginal$path';
+  }
+
+  // Genre mapping
+  static const Map<int, String> genres = {
+    28: 'Action',
+    12: 'Adventure',
+    16: 'Animation',
+    35: 'Comedy',
+    80: 'Crime',
+    99: 'Documentary',
+    18: 'Drama',
+    10751: 'Family',
+    14: 'Fantasy',
+    36: 'History',
+    27: 'Horror',
+    10402: 'Music',
+    9648: 'Mystery',
+    10749: 'Romance',
+    878: 'Sci-Fi',
+    10770: 'TV Movie',
+    53: 'Thriller',
+    10752: 'War',
+    37: 'Western',
+    10759: 'Action & Adv',
+    10765: 'Sci-Fi & Fantasy',
+  };
+
+  // High quality offline fallback data for seamless startup even when offline or API limited
+  static const List<Map<String, dynamic>> fallbackMedia = [
+    {
+      'id': 693134,
+      'title': 'Dune: Part Two',
+      'overview': 'Follow the mythic journey of Paul Atreides as he unites with Chani and the Fremen while on a path of revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the known universe, he endeavors to prevent a terrible future only he can foresee.',
+      'poster_path': '/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg',
+      'backdrop_path': '/xOMo8BRK7PfcJv9JCnx7s520Wio.jpg',
+      'vote_average': 8.3,
+      'vote_count': 4900,
+      'release_date': '2024-03-01',
+      'genre_ids': [878, 12],
+      'media_type': 'movie',
+      'runtime': 166,
+      'tagline': 'Long live the fighters.',
+      'trailer_key': 'Way9Dexny3w',
+    },
+    {
+      'id': 872585,
+      'title': 'Oppenheimer',
+      'overview': 'The story of J. Robert Oppenheimer\'s role in the development of the atomic bomb during World War II, exploring the profound moral consequences and the geopolitical tensions that followed.',
+      'poster_path': '/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
+      'backdrop_path': '/fm6KqXpk3M2HVveHwCrBSSBaO0V.jpg',
+      'vote_average': 8.1,
+      'vote_count': 8200,
+      'release_date': '2023-07-21',
+      'genre_ids': [18, 36],
+      'media_type': 'movie',
+      'runtime': 180,
+      'tagline': 'The world forever changes.',
+      'trailer_key': 'uYPbbksJxIg',
+    },
+    {
+      'id': 569094,
+      'title': 'Spider-Man: Across the Spider-Verse',
+      'overview': 'Miles Morales catapults across the Multiverse, where he encounters a team of Spider-People charged with protecting its very existence. When the heroes clash on how to handle a new threat, Miles must redefine what it means to be a hero.',
+      'poster_path': '/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg',
+      'backdrop_path': '/4HodYYKEIsGOdinkGi2Ucz6X9i0.jpg',
+      'vote_average': 8.4,
+      'vote_count': 6400,
+      'release_date': '2023-06-02',
+      'genre_ids': [16, 28, 12, 878],
+      'media_type': 'movie',
+      'runtime': 140,
+      'tagline': 'It\'s how you wear the mask that matters.',
+      'trailer_key': 'cqGjhVJWtEg',
+    },
+    {
+      'id': 157336,
+      'title': 'Interstellar',
+      'overview': 'The adventures of a group of explorers who make use of a newly discovered wormhole to surpass the limitations on human space travel and conquer the vast distances involved in an interstellar voyage.',
+      'poster_path': '/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
+      'backdrop_path': '/xJHokMbljvjADYdit5fK5VQsXEG.jpg',
+      'vote_average': 8.4,
+      'vote_count': 34500,
+      'release_date': '2014-11-07',
+      'genre_ids': [12, 18, 878],
+      'media_type': 'movie',
+      'runtime': 169,
+      'tagline': 'Mankind was born on Earth. It was never meant to die here.',
+      'trailer_key': 'zSWdZVtXT7E',
+    },
+    {
+      'id': 155,
+      'title': 'The Dark Knight',
+      'overview': 'Batman raises the stakes in his war on crime. With the help of Lt. Jim Gordon and District Attorney Harvey Dent, Batman sets out to dismantle the remaining criminal organizations that plague the streets.',
+      'poster_path': '/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
+      'backdrop_path': '/dqK9Hag1054tghRQSqLSfrkvQnA.jpg',
+      'vote_average': 8.5,
+      'vote_count': 32000,
+      'release_date': '2008-07-18',
+      'genre_ids': [18, 28, 80, 53],
+      'media_type': 'movie',
+      'runtime': 152,
+      'tagline': 'Welcome to a world without rules.',
+      'trailer_key': 'EXeTwQWrcwY',
+    },
+    {
+      'id': 94605,
+      'title': 'Arcane: League of Legends',
+      'overview': 'Amid the stark discord of twin cities Piltover and Zaun, two sisters fight on rival sides of a war between magic technologies and incompatible convictions.',
+      'poster_path': '/fqldf2t8ztc9aiwn3k6mlX3tvRT.jpg',
+      'backdrop_path': '/rkB4LyZHo1NHXSTXYuhMlFnwwOn.jpg',
+      'vote_average': 8.7,
+      'vote_count': 3800,
+      'release_date': '2021-11-06',
+      'genre_ids': [16, 10765, 10759, 18],
+      'media_type': 'tv',
+      'runtime': 45,
+      'tagline': 'Every legend has a beginning.',
+      'trailer_key': 'fXmAurh012s',
+    },
+    {
+      'id': 66732,
+      'title': 'Stranger Things',
+      'overview': 'When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.',
+      'poster_path': '/49WJfeN0moxb9IPfGn8AIqMGskD.jpg',
+      'backdrop_path': '/56v2KjBlU4XaOv9rVYEQypROD7P.jpg',
+      'vote_average': 8.6,
+      'vote_count': 17000,
+      'release_date': '2016-07-15',
+      'genre_ids': [10765, 9648, 18],
+      'media_type': 'tv',
+      'runtime': 50,
+      'tagline': 'Every ending has a beginning.',
+      'trailer_key': 'b9EkMc79ZSU',
+    },
+    {
+      'id': 126308,
+      'title': 'Shōgun',
+      'overview': 'When a mysterious European ship is found marooned in a nearby fishing village, Lord Yoshii Toranaga discovers secrets that could tip the scales of power and devastate his formidable enemies in feudal Japan.',
+      'poster_path': '/7O4iVfOMQmdCSxhOg1WNzG1AgYT.jpg',
+      'backdrop_path': '/2rmK7mnchw9Xr3XdiTFSxTT0Yqi.jpg',
+      'vote_average': 8.5,
+      'vote_count': 920,
+      'release_date': '2024-02-27',
+      'genre_ids': [18, 10759, 10768],
+      'media_type': 'tv',
+      'runtime': 58,
+      'tagline': 'Destiny is no matter of chance. It is a matter of choice.',
+      'trailer_key': 'yHfA_y0e-6k',
+    },
+    {
+      'id': 27205,
+      'title': 'Inception',
+      'overview': 'Cobb, a skilled thief who commits corporate espionage by infiltrating the subconscious of his targets is offered a chance to regain his old life as payment for a task considered to be impossible: "inception".',
+      'poster_path': '/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg',
+      'backdrop_path': '/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg',
+      'vote_average': 8.4,
+      'vote_count': 36000,
+      'release_date': '2010-07-16',
+      'genre_ids': [28, 878, 12],
+      'media_type': 'movie',
+      'runtime': 148,
+      'tagline': 'Your mind is the scene of the crime.',
+      'trailer_key': 'YoHD9XEInc0',
+    },
+    {
+      'id': 1399,
+      'title': 'Game of Thrones',
+      'overview': 'Seven noble families fight for control of the mythical land of Westeros. Friction between the houses leads to full-scale war. All while a very ancient evil awakens in the farthest north.',
+      'poster_path': '/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg',
+      'backdrop_path': '/2OMB0ynKlyIenMJWI2Dy9IWT4c.jpg',
+      'vote_average': 8.4,
+      'vote_count': 23000,
+      'release_date': '2011-04-17',
+      'genre_ids': [10765, 18, 10759],
+      'media_type': 'tv',
+      'runtime': 60,
+      'tagline': 'Winter Is Coming.',
+      'trailer_key': 'KPLWWIOCOOQ',
+    },
+    {
+      'id': 1429,
+      'title': 'Attack on Titan',
+      'overview': 'After his hometown is destroyed and his mother is killed, young Eren Jaeger vows to cleanse the earth of the giant humanoid Titans that have brought humanity to the brink of extinction.',
+      'poster_path': '/hTP1DtLGFamjfu8WqjnuQdP1n4i.jpg',
+      'backdrop_path': '/m03jul0KnfcgcUXJDbF1ipHLvdN.jpg',
+      'vote_average': 8.6,
+      'vote_count': 6000,
+      'release_date': '2013-04-07',
+      'genre_ids': [16, 10759, 10765],
+      'media_type': 'tv',
+      'runtime': 24,
+      'tagline': 'If you win, you live. If you lose, you die.',
+      'trailer_key': 'MGRm4IzK1SQ',
+    },
+    {
+      'id': 1396,
+      'title': 'Breaking Bad',
+      'overview': 'Walter White, a New Mexico chemistry teacher, is diagnosed with Stage III cancer and given a prognosis of two years left to live. He turns to a life of crime by partnering with a former student.',
+      'poster_path': '/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg',
+      'backdrop_path': '/tsRy63Mu5cu8etL1X7ZLyf7UP1M.jpg',
+      'vote_average': 8.9,
+      'vote_count': 14000,
+      'release_date': '2008-01-20',
+      'genre_ids': [18, 80],
+      'media_type': 'tv',
+      'runtime': 47,
+      'tagline': 'Change the equation.',
+      'trailer_key': 'HhesaQXLuRY',
+    }
+  ];
+}
