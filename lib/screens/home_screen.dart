@@ -101,7 +101,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               // Hero Carousel
               if (mediaProvider.isLoading && mediaProvider.heroItems.isEmpty)
-                const ShimmerLoader(width: double.infinity, height: 440, borderRadius: 0)
+                ShimmerLoader(width: double.infinity, height: 440, borderRadius: 0)
               else
                 HeroCarousel(items: mediaProvider.heroItems),
 

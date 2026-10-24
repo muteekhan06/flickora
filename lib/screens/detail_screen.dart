@@ -512,7 +512,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     const SizedBox(height: 14),
 
                     if (_isLoadingEpisodes)
-                      const ShimmerLoader(width: double.infinity, height: 100)
+                      ShimmerLoader(width: double.infinity, height: 100)
                     else
                       ListView.separated(
                         shrinkWrap: true,

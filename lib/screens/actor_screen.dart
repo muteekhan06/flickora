@@ -169,7 +169,7 @@ class _ActorScreenState extends State<ActorScreen> {
                   ),
                   const SizedBox(height: 8),
                   if (_isLoading)
-                    const ShimmerLoader(width: double.infinity, height: 70)
+                    ShimmerLoader(width: double.infinity, height: 70)
                   else ...[
                     GestureDetector(
                       onTap: () => setState(() => _isBioExpanded = !_isBioExpanded),
