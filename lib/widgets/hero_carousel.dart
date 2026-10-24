@@ -120,7 +120,7 @@ class _HeroCarouselState extends State<HeroCarousel> {
                             color: Colors.white,
                             letterSpacing: 0.5,
                             shadows: [
-                              Shadow(color: Colors.black800, blurRadius: 10),
+                              Shadow(color: Colors.black87, blurRadius: 10),
                             ],
                           ),
                         ),
